@@ -2,8 +2,9 @@
 
 Release History
 ===============
-unreleased
+(unreleased)
 +++++++++++++++++++
+* Azure Stack: handle adfs authority url with a trailing slash
 * 2017-03-09-profile is updated to consume MGMT_STORAGE API version '2016-01-01'
 
 2.0.17 (2017-09-22)
