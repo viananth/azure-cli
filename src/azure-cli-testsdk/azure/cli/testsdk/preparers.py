@@ -62,17 +62,7 @@ class StorageAccountPreparer(AbstractPreparer, SingleValueReplacer):
         group = self._get_resource_group(**kwargs)
 
         if not self.dev_setting_name:
-
-            # This is a poorly designed but necessary short-term compromise. Comparing the api profile string in if-else
-            # structure is neither elegant nor error-proof. However the alternatives are either worse or more expensive.
-            # 1. The API call can be made to relies on SDK. Pro: the argument specification can help to determine what
-            #    parameter name to use in a cleaner fashion. Con: introduce dependencies on SDK from testsdk. Further
-            #    complicates the architecture.
-            # 2. Two API profile can't be compared except using equalisation operator.
-            if get_active_api_profile() == '2017-03-09-profile':
-                template = 'az storage account create -n {} -g {} -l {} --account-type {}'
-            else:
-                template = 'az storage account create -n {} -g {} -l {} --sku {}'
+            template = 'az storage account create -n {} -g {} -l {} --sku {}'
             execute(template.format(name, group, self.location, self.sku))
         else:
             name = self.dev_setting_name
