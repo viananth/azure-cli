@@ -9,7 +9,6 @@ from azure_devtools.scenario_tests import AbstractPreparer, SingleValueReplacer
 
 from .base import execute
 from .exceptions import CliTestError
-from .utilities import get_active_api_profile
 
 
 # Resource Group Preparer and its shorthand decorator
