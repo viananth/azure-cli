@@ -187,9 +187,10 @@ class StorageAccountTests(StorageScenarioMixin, ScenarioTest):
         self.cmd('az account list-locations',
                  checks=[JMESPathCheck("[?name=='westus'].displayName | [0]", 'West US')])
 
+
 @api_version_constraint(ResourceType.MGMT_STORAGE, max_api='2016-01-01')
 class StorageAccountTestsForStack(StorageScenarioMixin, ScenarioTest):
-    @ResourceGroupPreparer(parameter_name_for_location='location', name_prefix='cli_test_storage_stack_scenario', location='local', dev_setting_location='local') 
+    @ResourceGroupPreparer(parameter_name_for_location='location', name_prefix='cli_test_storage_stack_scenario', location='local', dev_setting_location='local')
     def test_create_storage_account_stack(self, resource_group, location):
         name = self.create_random_name(prefix='cli', length=24)
 
@@ -216,8 +217,8 @@ class StorageAccountTestsForStack(StorageScenarioMixin, ScenarioTest):
 
         self.cmd('storage account show-connection-string -g {} -n {} --protocol http'.format(
             resource_group, name), checks=[
-            JMESPathCheck("contains(connectionString, 'https')", False),
-            JMESPathCheck("contains(connectionString, '{}')".format(name), True)])
+                JMESPathCheck("contains(connectionString, 'https')", False),
+                JMESPathCheck("contains(connectionString, '{}')".format(name), True)])
 
         self.cmd('storage account delete -g {} -n {} --yes'.format(resource_group, name))
         self.cmd('storage account check-name --name {}'.format(name),
@@ -275,7 +276,7 @@ class StorageAccountTestsForStack(StorageScenarioMixin, ScenarioTest):
         self.cmd('storage account keys renew -g {} -n {} --key secondary'
                  .format(resource_group, storage_account))
         renewed_keys = self.cmd('storage account keys list -g {} -n {}'
-                                 .format(resource_group, storage_account)).get_output_in_json()
+                                .format(resource_group, storage_account)).get_output_in_json()
         assert renewed_keys[0] == original_keys[0]
         assert renewed_keys[1] != original_keys[1]
 
