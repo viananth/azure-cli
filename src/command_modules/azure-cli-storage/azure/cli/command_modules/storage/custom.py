@@ -70,7 +70,7 @@ def create_storage_account(resource_group_name, account_name, sku, location=None
         if bypass and not default_action:
             raise CLIError('incorrect usage: --default-action ACTION [--bypass SERVICE ...]')
         params.network_rule_set = NetworkRuleSet(bypass=bypass, default_action=default_action, ip_rules=None,
-                                             virtual_network_rules=None)
+                                                 virtual_network_rules=None)
 
     return scf.storage_accounts.create(resource_group_name, account_name, params)
 
