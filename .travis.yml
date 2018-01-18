@@ -1,10 +1,6 @@
 dist: trusty
 sudo: off
 language: python
-services:
-  - docker
-git:
-  depth: false
 addons:
   apt:
     packages:
@@ -27,18 +23,6 @@ jobs:
       env: PURPOSE='Dependency Check'
       script: ./scripts/dependency/check.sh
       python: 3.6
-    - stage: verify
-      env: PURPOSE='Lint Command Table and Help'
-      script: ./scripts/ci/verify_linter.sh
-      python: 3.6
-    - stage: unittest
-      python: 3.6
-      env: TOXENV=py36
-      script: ./scripts/ci/unittest.sh
-    - stage: unittest
-      python: 2.7
-      env: TOXENV=py27
-      script: ./scripts/ci/unittest.sh
     - stage: verify
       env: 
       - PURPOSE='Automation'
