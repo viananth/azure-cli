@@ -498,6 +498,9 @@
     <Compile Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\latest\test_dns_commands.py" />
     <Compile Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\latest\test_network_commands.py" />
     <Compile Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\latest\test_network_unit_tests.py" />
+    <Compile Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\profile_2017_03_09\test_dns_zone_import.py" />
+    <Compile Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\profile_2017_03_09\test_network_commands.py" />
+    <Compile Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\profile_2017_03_09\test_network_unit_tests.py" />
     <Compile Include="command_modules\azure-cli-network\azure\cli\command_modules\network\zone_file\configs.py" />
     <Compile Include="command_modules\azure-cli-network\azure\cli\command_modules\network\zone_file\exceptions.py" />
     <Compile Include="command_modules\azure-cli-network\azure\cli\command_modules\network\zone_file\make_zone_file.py" />
@@ -634,6 +637,7 @@
     <Compile Include="command_modules\azure-cli-storage\azure\cli\command_modules\storage\tests\latest\test_storage_url_helpers.py" />
     <Compile Include="command_modules\azure-cli-storage\azure\cli\command_modules\storage\tests\latest\test_storage_validators.py" />
     <Compile Include="command_modules\azure-cli-storage\azure\cli\command_modules\storage\url_quote_util.py" />
+    <Compile Include="command_modules\azure-cli-storage\azure\cli\command_modules\storage\tests\profile_2017_03_09\test_storage_account_scenarios.py" />
     <Compile Include="command_modules\azure-cli-storage\azure\cli\command_modules\storage\util.py" />
     <Compile Include="command_modules\azure-cli-storage\azure\cli\command_modules\storage\_client_factory.py" />
     <Compile Include="command_modules\azure-cli-storage\azure\cli\command_modules\storage\_format.py">
@@ -951,6 +955,7 @@
     <Folder Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\" />
     <Folder Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\latest\" />
     <Folder Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\latest\zone_files\" />
+    <Folder Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\profile_2017_03_09\" />
     <Folder Include="command_modules\azure-cli-network\azure\cli\command_modules\network\zone_file\" />
     <Folder Include="command_modules\azure-cli-profile\azure\cli\command_modules\profile\tests\" />
     <Folder Include="command_modules\azure-cli-profile\azure\cli\command_modules\profile\tests\latest\" />
@@ -1031,6 +1036,7 @@
     <Folder Include="command_modules\azure-cli-storage\azure\cli\command_modules\storage\operations\" />
     <Folder Include="command_modules\azure-cli-storage\azure\cli\command_modules\storage\tests\" />
     <Folder Include="command_modules\azure-cli-storage\azure\cli\command_modules\storage\tests\latest\" />
+    <Folder Include="command_modules\azure-cli-storage\azure\cli\command_modules\storage\tests\profile_2017_03_09\" />
     <Folder Include="command_modules\azure-cli-vm\" />
     <Folder Include="command_modules\azure-cli-vm\azure\" />
     <Folder Include="command_modules\azure-cli-vm\azure\cli\" />

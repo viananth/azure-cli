@@ -8,7 +8,7 @@ from azure.cli.core.profiles import ResourceType
 from .storage_test_util import StorageScenarioMixin
 
 
-@api_version_constraint(ResourceType.MGMT_STORAGE, min_api='2016-12-01')
+@api_version_constraint(ResourceType.MGMT_STORAGE, min_api='2016-01-01')
 class StorageAccountTests(StorageScenarioMixin, ScenarioTest):
     @api_version_constraint(ResourceType.MGMT_STORAGE, min_api='2017-06-01')
     @ResourceGroupPreparer(name_prefix='cli_test_storage_service_endpoints')

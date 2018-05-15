@@ -20,87 +20,6 @@ from msrestazure.tools import resource_id
 TEST_DIR = os.path.abspath(os.path.join(os.path.abspath(__file__), '..'))
 
 
-@api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-08-01')
-class NetworkLoadBalancerWithSku(ScenarioTest):
-
-    @ResourceGroupPreparer(name_prefix='cli_test_network_lb_sku')
-    def test_network_lb_sku(self, resource_group):
-
-        self.kwargs.update({
-            'lb': 'lb1',
-            'sku': 'standard',
-            'location': 'eastus2',
-            'ip': 'pubip1'
-        })
-
-        self.cmd('network lb create -g {rg} -l {location} -n {lb} --sku {sku} --public-ip-address {ip}')
-        self.cmd('network lb show -g {rg} -n {lb}', checks=[
-            self.check('sku.name', 'Standard')
-        ])
-        self.cmd('network public-ip show -g {rg} -n {ip}', checks=[
-            self.check('sku.name', 'Standard'),
-            self.check('publicIpAllocationMethod', 'Static')
-        ])
-
-
-@api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
-class NetworkLoadBalancerWithZone(ScenarioTest):
-
-    @ResourceGroupPreparer(name_prefix='cli_test_network_lb_zone')
-    def test_network_lb_zone(self, resource_group):
-
-        self.kwargs.update({
-            'lb': 'lb1',
-            'zone': '2',
-            'location': 'eastus2',
-            'ip': 'pubip1'
-        })
-
-        # LB with public ip
-        self.cmd('network lb create -g {rg} -l {location} -n {lb} --public-ip-zone {zone} --public-ip-address {ip}')
-        # No zone on LB and its front-ip-config
-        self.cmd('network lb show -g {rg} -n {lb}', checks=[
-            self.check("frontendIpConfigurations[0].zones", None),
-            self.check("zones", None)
-        ])
-        # Zone on public-ip which LB uses to infer the zone
-        self.cmd('network public-ip show -g {rg} -n {ip}', checks=[
-            self.check('zones[0]', self.kwargs['zone'])
-        ])
-
-        # LB w/o public ip, so called ILB
-        self.kwargs['lb'] = 'lb2'
-        self.cmd('network lb create -g {rg} -l {location} -n {lb} --frontend-ip-zone {zone} --public-ip-address "" --vnet-name vnet1 --subnet subnet1')
-        # Zone on front-ip-config, and still no zone on LB resource
-        self.cmd('network lb show -g {rg} -n {lb}', checks=[
-            self.check("frontendIpConfigurations[0].zones[0]", self.kwargs['zone']),
-            self.check("zones", None)
-        ])
-        # add a second frontend ip configuration
-        self.cmd('network lb frontend-ip create -g {rg} --lb-name {lb} -n LoadBalancerFrontEnd2 -z {zone}  --vnet-name vnet1 --subnet subnet1', checks=[
-            self.check("zones", [self.kwargs['zone']])
-        ])
-
-
-@api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-08-01')
-class NetworkPublicIpWithSku(ScenarioTest):
-
-    @ResourceGroupPreparer(name_prefix='cli_test_network_lb_sku')
-    def test_network_public_ip_sku(self, resource_group):
-
-        self.kwargs.update({
-            'sku': 'standard',
-            'location': 'eastus2',
-            'ip': 'pubip1'
-        })
-
-        self.cmd('network public-ip create -g {rg} -l {location} -n {ip} --sku {sku}')
-        self.cmd('network public-ip show -g {rg} -n {ip}', checks=[
-            self.check('sku.name', 'Standard'),
-            self.check('publicIpAllocationMethod', 'Static')
-        ])
-
-
 class NetworkMultiIdsShowScenarioTest(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='test_multi_id')
@@ -150,31 +69,6 @@ class NetworkAppGatewayDefaultScenarioTest(ScenarioTest):
         self.cmd('network application-gateway list --resource-group {rg}', checks=self.check('length(@)', ag_count - 1))
 
 
-@api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
-class NetworkAppGatewayRedirectConfigScenarioTest(ScenarioTest):
-
-    @ResourceGroupPreparer(name_prefix='cli_test_ag_basic')
-    def test_network_app_gateway_redirect_config(self, resource_group):
-        self.kwargs.update({
-            'gateway': 'ag1',
-            'name': 'redirect1'
-        })
-        self.cmd('network application-gateway create -g {rg} -n {gateway} --no-wait')
-        self.cmd('network application-gateway wait -g {rg} -n {gateway} --exists')
-        self.cmd('network application-gateway redirect-config create --gateway-name {gateway} -g {rg} -n {name} -t permanent --include-query-string --include-path false --target-listener appGatewayHttpListener --no-wait')
-        self.cmd('network application-gateway redirect-config show --gateway-name {gateway} -g {rg} -n {name}', checks=[
-            self.check('includePath', False),
-            self.check('includeQueryString', True),
-            self.check('redirectType', 'Permanent')
-        ])
-        self.cmd('network application-gateway redirect-config update --gateway-name {gateway} -g {rg} -n {name} --include-path --include-query-string false --no-wait')
-        self.cmd('network application-gateway redirect-config show --gateway-name {gateway} -g {rg} -n {name}', checks=[
-            self.check('includePath', True),
-            self.check('includeQueryString', False),
-            self.check('redirectType', 'Permanent')
-        ])
-
-
 class NetworkAppGatewayExistingSubnetScenarioTest(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_ag_existing_subnet')
@@ -213,7 +107,7 @@ class NetworkAppGatewayNoWaitScenarioTest(ScenarioTest):
         self.cmd('network application-gateway wait -g {rg} -n ag2 --deleted')
 
 
-@api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
+# @api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
 class NetworkAppGatewayPrivateIpScenarioTest20170601(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_ag_private_ip')
@@ -256,7 +150,7 @@ class NetworkAppGatewayPrivateIpScenarioTest20170601(ScenarioTest):
         ])
 
 
-@api_version_constraint(ResourceType.MGMT_NETWORK, max_api='2017-03-01')
+# @api_version_constraint(ResourceType.MGMT_NETWORK, max_api='2017-03-01')
 class NetworkAppGatewayPrivateIpScenarioTest20170301(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_ag_private_ip')
@@ -285,7 +179,7 @@ class NetworkAppGatewayPrivateIpScenarioTest20170301(ScenarioTest):
                  checks=self.is_empty())
 
 
-@api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
+# @api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
 class NetworkAppGatewaySubresourceScenarioTest(ScenarioTest):
 
     def _create_ag(self):
@@ -533,7 +427,7 @@ class NetworkAppGatewayPublicIpScenarioTest(ScenarioTest):
         ])
 
 
-@api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-03-01')
+# @api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-03-01')
 class NetworkAppGatewayWafConfigScenarioTest20170301(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_app_gateway_waf_config')
@@ -553,7 +447,7 @@ class NetworkAppGatewayWafConfigScenarioTest20170301(ScenarioTest):
         ])
 
 
-@api_version_constraint(ResourceType.MGMT_NETWORK, max_api='2016-12-01')
+# @api_version_constraint(ResourceType.MGMT_NETWORK, max_api='2016-12-01')
 class NetworkAppGatewayWafScenarioTest(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_ag_waf')
@@ -623,7 +517,7 @@ class NetworkPublicIpScenarioTest(ScenarioTest):
                  checks=self.check("length[?name == '{ip1}']", None))
 
 
-@api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
+# @api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
 class NetworkZonedPublicIpScenarioTest(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_zoned_public_ip')
@@ -755,7 +649,7 @@ class NetworkExpressRouteScenarioTest(ScenarioTest):
         self.cmd('network express-route list --resource-group {rg}', checks=self.is_empty())
 
 
-@api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
+# @api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
 class NetworkExpressRouteIPv6PeeringScenarioTest(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_express_route_ipv6_peering')
@@ -1043,7 +937,7 @@ class NetworkLocalGatewayScenarioTest(ScenarioTest):
 
 class NetworkNicScenarioTest(ScenarioTest):
 
-    @api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
+    # @api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
     @ResourceGroupPreparer(name_prefix='cli_test_nic_scenario')
     def test_network_nic(self, resource_group):
 
@@ -1309,7 +1203,7 @@ class NetworkNicConvenienceCommandsScenarioTest(ScenarioTest):
                  checks=self.greater_than('length(@)', 0))
 
 
-@api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
+# @api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
 class NetworkExtendedNSGScenarioTest(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_extended_nsg')
@@ -1652,7 +1546,7 @@ class NetworkSubnetSetScenarioTest(ScenarioTest):
         self.cmd('network nsg delete --resource-group {rg} --name {nsg}')
 
 
-@api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
+# @api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
 class NetworkSubnetEndpointServiceScenarioTest(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_subnet_endpoint_service_test')
@@ -1776,7 +1670,7 @@ class NetworkActiveActiveVnetScenarioTest(ScenarioTest):  # pylint: disable=too-
         self.cmd('network vpn-connection create -g {rg} -n {conn21} --vnet-gateway1 {gw2} --vnet-gateway2 {gw1} --shared-key {key} --enable-bgp')
 
 
-@api_version_constraint(ResourceType.MGMT_NETWORK, max_api='2015-06-15')
+# @api_version_constraint(ResourceType.MGMT_NETWORK, max_api='2015-06-15')
 class NetworkVpnGatewayScenarioTest(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_vpn_gateway')
@@ -1846,7 +1740,7 @@ class NetworkVpnGatewayScenarioTest(ScenarioTest):
                  checks=self.check('routingWeight', 25))
 
 
-@api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2016-09-01')
+# @api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2016-09-01')
 class NetworkVpnGatewayScenarioTest(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_vpn_gateway')
@@ -1923,7 +1817,7 @@ class NetworkVpnGatewayScenarioTest(ScenarioTest):
         self.cmd('network vnet-gateway list-bgp-peer-status -g {rg} -n {gw1} --peer 10.1.1.1')
 
 
-@api_version_constraint(ResourceType.MGMT_NETWORK, max_api='2017-06-01')
+# @api_version_constraint(ResourceType.MGMT_NETWORK, max_api='2017-06-01')
 class NetworkVpnClientPackageScenarioTest(ScenarioTest):
 
     @ResourceGroupPreparer('cli_test_vpn_client_package')
@@ -1948,7 +1842,7 @@ class NetworkVpnClientPackageScenarioTest(ScenarioTest):
         self.assertTrue('.exe' in output, 'Expected EXE file in output.\nActual: {}'.format(output))
 
 
-@api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
+# @api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
 class NetworkVpnClientPackageScenarioTest(ScenarioTest):
 
     @live_only()
