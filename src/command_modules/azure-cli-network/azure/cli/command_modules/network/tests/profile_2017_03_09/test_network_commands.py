@@ -104,7 +104,6 @@ class NetworkAppGatewayNoWaitScenarioTest(ScenarioTest):
         self.cmd('network application-gateway wait -g {rg} -n ag2 --deleted')
 
 
-# @api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
 class NetworkAppGatewayPrivateIpScenarioTest20170601(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_ag_private_ip')
@@ -126,36 +125,6 @@ class NetworkAppGatewayPrivateIpScenarioTest20170601(ScenarioTest):
         self.cmd('network application-gateway wait -g {rg} -n ag3 --updated')
 
 
-# @api_version_constraint(ResourceType.MGMT_NETWORK, max_api='2017-03-01')
-class NetworkAppGatewayPrivateIpScenarioTest20170301(ScenarioTest):
-
-    @ResourceGroupPreparer(name_prefix='cli_test_ag_private_ip')
-    def test_network_app_gateway_with_private_ip(self, resource_group):
-
-        self.kwargs.update({
-            'private_ip': '10.0.0.15',
-            'pass': 'password',
-            'path': os.path.join(TEST_DIR, 'TestCert.pfx')
-        })
-
-        self.cmd('network application-gateway create -g {rg} -n ag3 --subnet subnet1 --private-ip-address {private_ip} --cert-file "{path}" --cert-password {pass} --no-wait')
-        self.cmd('network application-gateway wait -g {rg} -n ag3 --exists')
-        self.cmd('network application-gateway show -g {rg} -n ag3', checks=[
-            self.check('frontendIpConfigurations[0].privateIpAddress', self.kwargs['private_ip']),
-            self.check('frontendIpConfigurations[0].privateIpAllocationMethod', 'Static')
-        ])
-        self.kwargs['path'] = os.path.join(TEST_DIR, 'TestCert2.pfx')
-        self.cmd('network application-gateway ssl-cert update -g {rg} --gateway-name ag3 -n ag3SslCert --cert-file "{path}" --cert-password {pass}')
-        self.cmd('network application-gateway wait -g {rg} -n ag3 --updated')
-        self.cmd('network application-gateway ssl-policy set -g {rg} --gateway-name ag3 --policy-type Predefined --no-wait')
-        self.cmd('network application-gateway ssl-policy show -g {rg} --gateway-name ag3',
-                 checks=self.check('policytype', 'Predefined'))
-        self.cmd('network application-gateway ssl-policy set -g {rg} --gateway-name ag3 --clear --no-wait')
-        self.cmd('network application-gateway ssl-policy show -g {rg} --gateway-name ag3',
-                 checks=self.is_empty())
-
-
-# @api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
 class NetworkAppGatewaySubresourceScenarioTest(ScenarioTest):
 
     def _create_ag(self):
@@ -401,9 +370,8 @@ class NetworkPublicIpScenarioTest(ScenarioTest):
                  checks=self.check("length[?name == '{ip1}']", None))
 
 
-# @api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
 class NetworkZonedPublicIpScenarioTest(ScenarioTest):
-
+    
     @ResourceGroupPreparer(name_prefix='cli_test_zoned_public_ip')
     def test_network_zoned_public_ip(self, resource_group):
         self.kwargs['ip'] = 'pubip'
@@ -413,121 +381,6 @@ class NetworkZonedPublicIpScenarioTest(ScenarioTest):
         self.assertEqual(table_output.splitlines()[2].split(), ['pubip', resource_group, 'centralus', 'Dynamic', '4', 'Succeeded'])
 
 
-
-class NetworkExpressRouteScenarioTest(ScenarioTest):
-
-    def _test_express_route_peering(self):
-
-        def _create_peering(peering, peer_asn, vlan, primary_prefix, secondary_prefix):
-            self.kwargs.update({
-                'peering': peering,
-                'asn': peer_asn,
-                'vlan': vlan,
-                'pri_prefix': primary_prefix,
-                'sec_prefix': secondary_prefix
-            })
-            self.cmd('network express-route peering create -g {rg} --circuit-name {er} --peering-type {peering} --peer-asn {asn} --vlan-id {vlan} --primary-peer-subnet {pri_prefix} --secondary-peer-subnet {sec_prefix}')
-
-        # create public and private peerings
-        _create_peering('AzurePublicPeering', 10000, 100, '100.0.0.0/30', '101.0.0.0/30')
-        _create_peering('AzurePrivatePeering', 10001, 101, '102.0.0.0/30', '103.0.0.0/30')
-
-        self.cmd('network express-route peering create -g {rg} --circuit-name {er} --peering-type MicrosoftPeering --peer-asn 10002 --vlan-id 103 --primary-peer-subnet 104.0.0.0/30 --secondary-peer-subnet 105.0.0.0/30 --advertised-public-prefixes 104.0.0.0/30 --customer-asn 10000 --routing-registry-name level3', expect_failure=True)
-        self.cmd('network express-route peering show -g {rg} --circuit-name {er} -n MicrosoftPeering', checks=[
-            self.check('microsoftPeeringConfig.advertisedPublicPrefixes[0]', '104.0.0.0/30'),
-            self.check('microsoftPeeringConfig.customerAsn', 10000),
-            self.check('microsoftPeeringConfig.routingRegistryName', 'LEVEL3')
-        ])
-
-        self.cmd('network express-route peering delete -g {rg} --circuit-name {er} -n MicrosoftPeering')
-
-        self.cmd('network express-route peering list --resource-group {rg} --circuit-name {er}',
-                 checks=self.check('length(@)', 2))
-
-        self.cmd('network express-route peering update -g {rg} --circuit-name {er} -n AzurePublicPeering --set vlanId=200',
-                 checks=self.check('vlanId', 200))
-
-    def _test_express_route_auth(self):
-
-        self.cmd('network express-route auth create -g {rg} --circuit-name {er} -n auth1',
-                 checks=self.check('authorizationUseStatus', 'Available'))
-
-        self.cmd('network express-route auth list --resource-group {rg} --circuit-name {er}',
-                 checks=self.check('length(@)', 1))
-
-        self.cmd('network express-route auth show -g {rg} --circuit-name {er} -n auth1',
-                 checks=self.check('authorizationUseStatus', 'Available'))
-
-        self.cmd('network express-route auth delete -g {rg} --circuit-name {er} -n auth1')
-
-        self.cmd('network express-route auth list --resource-group {rg} --circuit-name {er}', checks=self.is_empty())
-
-    @ResourceGroupPreparer(name_prefix='cli_test_express_route')
-    def test_network_express_route(self, resource_group):
-
-        self.kwargs = {
-            'rg': resource_group,
-            'er': 'circuit1',
-            'rt': 'Microsoft.Network/expressRouteCircuits'
-        }
-
-        # Premium SKU required to create MicrosoftPeering settings
-        self.cmd('network express-route create -g {rg} -n {er} --bandwidth 50 --provider "Microsoft ER Test" --peering-location Area51 --sku-tier Premium')
-        self.cmd('network express-route list', checks=[
-            self.check('type(@)', 'array'),
-            self.check("length([?type == '{rt}']) == length(@)", True)
-        ])
-        self.cmd('network express-route list --resource-group {rg}', checks=[
-            self.check('type(@)', 'array'),
-            self.check("length([?type == '{rt}']) == length(@)", True),
-            self.check("length([?resourceGroup == '{rg}']) == length(@)", True)
-        ])
-        self.cmd('network express-route show --resource-group {rg} --name {er}', checks=[
-            self.check('type(@)', 'object'),
-            self.check('type', '{rt}'),
-            self.check('name', '{er}'),
-            self.check('resourceGroup', '{rg}')
-        ])
-        self.cmd('network express-route get-stats --resource-group {rg} --name {er}',
-                 checks=self.check('type(@)', 'object'))
-
-        self.cmd('network express-route update -g {rg} -n {er} --set tags.test=Test',
-                 checks=self.check('tags', {'test': 'Test'}))
-
-        self._test_express_route_auth()
-
-        self._test_express_route_peering()
-
-        # because the circuit isn't actually provisioned, these commands will not return anything useful
-        # so we will just verify that the command makes it through the SDK without error.
-        self.cmd('network express-route list-arp-tables --resource-group {rg} --name {er} --peering-name azureprivatepeering --path primary')
-        self.cmd('network express-route list-route-tables --resource-group {rg} --name {er} --peering-name azureprivatepeering --path primary')
-
-        self.cmd('network express-route delete --resource-group {rg} --name {er}')
-        # Expecting no results as we just deleted the only express route in the resource group
-        self.cmd('network express-route list --resource-group {rg}', checks=self.is_empty())
-
-
-# @api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
-class NetworkExpressRouteIPv6PeeringScenarioTest(ScenarioTest):
-
-    @ResourceGroupPreparer(name_prefix='cli_test_express_route_ipv6_peering')
-    def test_network_express_route_ipv6_peering(self, resource_group):
-
-        self.kwargs['er'] = 'circuit1'
-
-        # Premium SKU required to create MicrosoftPeering settings
-        self.cmd('network express-route create -g {rg} -n {er} --bandwidth 50 --provider "Microsoft ER Test" --peering-location Area51 --sku-tier Premium')
-        self.cmd('network express-route peering create -g {rg} --circuit-name {er} --peering-type MicrosoftPeering --peer-asn 10002 --vlan-id 103 --primary-peer-subnet 104.0.0.0/30 --secondary-peer-subnet 105.0.0.0/30 --advertised-public-prefixes 104.0.0.0/30 --customer-asn 10000 --routing-registry-name level3')
-        self.cmd('network express-route peering update -g {rg} --circuit-name {er} -n MicrosoftPeering --ip-version ipv6 --primary-peer-subnet 2001:db00::/126 --secondary-peer-subnet 2002:db00::/126 --advertised-public-prefixes 2001:db00::/126 --customer-asn 100001 --routing-registry-name level3')
-        self.cmd('network express-route peering show -g {rg} --circuit-name {er} -n MicrosoftPeering', checks=[
-            self.check('microsoftPeeringConfig.advertisedPublicPrefixes[0]', '104.0.0.0/30'),
-            self.check('microsoftPeeringConfig.customerAsn', 10000),
-            self.check('microsoftPeeringConfig.routingRegistryName', 'LEVEL3'),
-            self.check('ipv6PeeringConfig.microsoftPeeringConfig.advertisedPublicPrefixes[0]', '2001:db00::/126'),
-            self.check('ipv6PeeringConfig.microsoftPeeringConfig.customerAsn', 100001),
-            self.check('ipv6PeeringConfig.state', 'Enabled')
-        ])
 
 
 class NetworkLoadBalancerScenarioTest(ScenarioTest):
@@ -796,7 +649,6 @@ class NetworkLocalGatewayScenarioTest(ScenarioTest):
 
 class NetworkNicScenarioTest(ScenarioTest):
 
-    # @api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-06-01')
     @ResourceGroupPreparer(name_prefix='cli_test_nic_scenario')
     def test_network_nic(self, resource_group):
 
