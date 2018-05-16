@@ -686,6 +686,12 @@
     <Compile Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\latest\test_vm_defaults.py" />
     <Compile Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\latest\test_vm_image.py" />
     <Compile Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\latest\test_vm_parameters.py" />
+    <Compile Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\profile_2017_03_09\test_custom_vm_commands.py" />
+    <Compile Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\profile_2017_03_09\test_vm_actions.py" />
+    <Compile Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\profile_2017_03_09\test_vm_commands.py" />
+    <Compile Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\profile_2017_03_09\test_vm_defaults.py" />
+    <Compile Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\profile_2017_03_09\test_vm_image.py" />
+    <Compile Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\profile_2017_03_09\test_vm_parameters.py" />
     <Compile Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\_actions.py">
       <SubType>Code</SubType>
     </Compile>
@@ -956,6 +962,7 @@
     <Folder Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\latest\" />
     <Folder Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\latest\zone_files\" />
     <Folder Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\profile_2017_03_09\" />
+    <Folder Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\profile_2017_03_09\zone_files\" />
     <Folder Include="command_modules\azure-cli-network\azure\cli\command_modules\network\zone_file\" />
     <Folder Include="command_modules\azure-cli-profile\azure\cli\command_modules\profile\tests\" />
     <Folder Include="command_modules\azure-cli-profile\azure\cli\command_modules\profile\tests\latest\" />
@@ -1046,6 +1053,8 @@
     <Folder Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\latest\" />
     <Folder Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\latest\keyvault\" />
     <Folder Include="command_modules\azure-cli-dms\" />
+    <Folder Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\profile_2017_03_09\" />
+    <Folder Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\profile_2017_03_09\keyvault\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="azure-cli-command_modules-nspkg\HISTORY.rst" />
@@ -1215,6 +1224,16 @@
     <Content Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\latest\zone_files\zone4.txt" />
     <Content Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\latest\zone_files\zone5.txt" />
     <Content Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\latest\zone_files\zone6.txt" />
+    <Content Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\profile_2017_03_09\zone_files\fail1.txt" />
+    <Content Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\profile_2017_03_09\zone_files\fail2.txt" />
+    <Content Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\profile_2017_03_09\zone_files\fail3.txt" />
+    <Content Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\profile_2017_03_09\zone_files\fail4.txt" />
+    <Content Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\profile_2017_03_09\zone_files\fail5.txt" />
+    <Content Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\profile_2017_03_09\zone_files\zone1.txt" />
+    <Content Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\profile_2017_03_09\zone_files\zone2.txt" />
+    <Content Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\profile_2017_03_09\zone_files\zone3.txt" />
+    <Content Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\profile_2017_03_09\zone_files\zone4.txt" />
+    <Content Include="command_modules\azure-cli-network\azure\cli\command_modules\network\tests\profile_2017_03_09\zone_files\zone5.txt" />
     <Content Include="command_modules\azure-cli-network\HISTORY.rst" />
     <Content Include="command_modules\azure-cli-network\linter_exclusions.yml" />
     <Content Include="command_modules\azure-cli-profile\HISTORY.rst" />
@@ -1260,6 +1279,11 @@
     <Content Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\latest\sample-public.json" />
     <Content Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\latest\vmss_create_test_plan.md" />
     <Content Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\latest\vm_create_test_plan.md" />
+    <Content Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\profile_2017_03_09\aliases.json" />
+    <Content Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\profile_2017_03_09\keyvault\policy.json" />
+    <Content Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\profile_2017_03_09\sample-public.json" />
+    <Content Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\profile_2017_03_09\vmss_create_test_plan.md" />
+    <Content Include="command_modules\azure-cli-vm\azure\cli\command_modules\vm\tests\profile_2017_03_09\vm_create_test_plan.md" />
     <Content Include="command_modules\azure-cli-vm\HISTORY.rst" />
   </ItemGroup>
   <ItemGroup>
