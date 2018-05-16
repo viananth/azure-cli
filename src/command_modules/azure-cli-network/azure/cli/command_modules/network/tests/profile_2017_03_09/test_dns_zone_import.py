@@ -194,7 +194,7 @@ class TestDnsZoneImport(unittest.TestCase):
         self._check_txt(zone, 't4.' + zn, [(3600, None, 'foo;bar')])
         self._check_txt(zone, 't5.' + zn, [(3600, None, 'foo\\;bar')])
         self._check_txt(zone, 't6.' + zn, [(3600, None, 'foo\\;bar')])
-        self._check_txt(zone, 't7.' + zn, [(3600, None, '"quoted string"')])
+        self._check_txt(zone, 't7.' + zn, [(3600, None, '\\"quoted string\\"')])
         self._check_txt(zone, 't8.' + zn, [(3600, None, 'foobar')])
         self._check_txt(zone, 't9.' + zn, [(3600, None, 'foobarr')])
         self._check_txt(zone, 't10.' + zn, [(3600, None, 'foo bar')])

@@ -1,7 +1,7 @@
 interactions:
 - request:
-    body: '{"location": "westus", "tags": {"date": "2018-05-15T22:48:05Z", "product":
-      "azurecli", "cause": "automation"}}'
+    body: '{"location": "westus", "tags": {"cause": "automation", "date": "2018-05-16T19:31:10Z",
+      "product": "azurecli"}}'
     headers:
       Accept: [application/json]
       Accept-Encoding: ['gzip, deflate']
@@ -16,12 +16,12 @@ interactions:
     method: PUT
     uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_extended_nsg000001?api-version=2016-02-01
   response:
-    body: {string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001","name":"cli_test_extended_nsg000001","location":"westus","tags":{"date":"2018-05-15T22:48:05Z","product":"azurecli","cause":"automation"},"properties":{"provisioningState":"Succeeded"}}'}
+    body: {string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001","name":"cli_test_extended_nsg000001","location":"westus","tags":{"cause":"automation","date":"2018-05-16T19:31:10Z","product":"azurecli"},"properties":{"provisioningState":"Succeeded"}}'}
     headers:
       cache-control: [no-cache]
       content-length: ['384']
       content-type: [application/json; charset=utf-8]
-      date: ['Tue, 15 May 2018 22:48:05 GMT']
+      date: ['Wed, 16 May 2018 19:31:11 GMT']
       expires: ['-1']
       pragma: [no-cache]
       strict-transport-security: [max-age=31536000; includeSubDomains]
@@ -43,12 +43,12 @@ interactions:
     method: GET
     uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_extended_nsg000001?api-version=2016-02-01
   response:
-    body: {string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001","name":"cli_test_extended_nsg000001","location":"westus","tags":{"date":"2018-05-15T22:48:05Z","product":"azurecli","cause":"automation"},"properties":{"provisioningState":"Succeeded"}}'}
+    body: {string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001","name":"cli_test_extended_nsg000001","location":"westus","tags":{"cause":"automation","date":"2018-05-16T19:31:10Z","product":"azurecli"},"properties":{"provisioningState":"Succeeded"}}'}
     headers:
       cache-control: [no-cache]
       content-length: ['384']
       content-type: [application/json; charset=utf-8]
-      date: ['Tue, 15 May 2018 22:48:05 GMT']
+      date: ['Wed, 16 May 2018 19:31:11 GMT']
       expires: ['-1']
       pragma: [no-cache]
       strict-transport-security: [max-age=31536000; includeSubDomains]
@@ -72,13 +72,13 @@ interactions:
     uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001/providers/Microsoft.Network/networkSecurityGroups/nsg1?api-version=2015-06-15
   response:
     body: {string: "{\r\n  \"name\": \"nsg1\",\r\n  \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001/providers/Microsoft.Network/networkSecurityGroups/nsg1\"\
-        ,\r\n  \"etag\": \"W/\\\"c604fd2b-a872-43c0-aec2-b7b06d3f3d0c\\\"\",\r\n \
+        ,\r\n  \"etag\": \"W/\\\"d7a3b979-470d-4a3c-9c3c-505ec46e5487\\\"\",\r\n \
         \ \"type\": \"Microsoft.Network/networkSecurityGroups\",\r\n  \"location\"\
         : \"westus\",\r\n  \"properties\": {\r\n    \"provisioningState\": \"Updating\"\
-        ,\r\n    \"resourceGuid\": \"2578c544-15e5-4c86-b8bc-0961d04b5196\",\r\n \
+        ,\r\n    \"resourceGuid\": \"d5c1f489-d1b9-4840-8dc1-b88c1367f0ed\",\r\n \
         \   \"securityRules\": [],\r\n    \"defaultSecurityRules\": [\r\n      {\r\
         \n        \"name\": \"AllowVnetInBound\",\r\n        \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001/providers/Microsoft.Network/networkSecurityGroups/nsg1/defaultSecurityRules/AllowVnetInBound\"\
-        ,\r\n        \"etag\": \"W/\\\"c604fd2b-a872-43c0-aec2-b7b06d3f3d0c\\\"\"\
+        ,\r\n        \"etag\": \"W/\\\"d7a3b979-470d-4a3c-9c3c-505ec46e5487\\\"\"\
         ,\r\n        \"properties\": {\r\n          \"provisioningState\": \"Updating\"\
         ,\r\n          \"description\": \"Allow inbound traffic from all VMs in VNET\"\
         ,\r\n          \"protocol\": \"*\",\r\n          \"sourcePortRange\": \"*\"\
@@ -88,7 +88,7 @@ interactions:
         \          \"direction\": \"Inbound\"\r\n        }\r\n      },\r\n      {\r\
         \n        \"name\": \"AllowAzureLoadBalancerInBound\",\r\n        \"id\":\
         \ \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001/providers/Microsoft.Network/networkSecurityGroups/nsg1/defaultSecurityRules/AllowAzureLoadBalancerInBound\"\
-        ,\r\n        \"etag\": \"W/\\\"c604fd2b-a872-43c0-aec2-b7b06d3f3d0c\\\"\"\
+        ,\r\n        \"etag\": \"W/\\\"d7a3b979-470d-4a3c-9c3c-505ec46e5487\\\"\"\
         ,\r\n        \"properties\": {\r\n          \"provisioningState\": \"Updating\"\
         ,\r\n          \"description\": \"Allow inbound traffic from azure load balancer\"\
         ,\r\n          \"protocol\": \"*\",\r\n          \"sourcePortRange\": \"*\"\
@@ -97,7 +97,7 @@ interactions:
         ,\r\n          \"access\": \"Allow\",\r\n          \"priority\": 65001,\r\n\
         \          \"direction\": \"Inbound\"\r\n        }\r\n      },\r\n      {\r\
         \n        \"name\": \"DenyAllInBound\",\r\n        \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001/providers/Microsoft.Network/networkSecurityGroups/nsg1/defaultSecurityRules/DenyAllInBound\"\
-        ,\r\n        \"etag\": \"W/\\\"c604fd2b-a872-43c0-aec2-b7b06d3f3d0c\\\"\"\
+        ,\r\n        \"etag\": \"W/\\\"d7a3b979-470d-4a3c-9c3c-505ec46e5487\\\"\"\
         ,\r\n        \"properties\": {\r\n          \"provisioningState\": \"Updating\"\
         ,\r\n          \"description\": \"Deny all inbound traffic\",\r\n        \
         \  \"protocol\": \"*\",\r\n          \"sourcePortRange\": \"*\",\r\n     \
@@ -106,7 +106,7 @@ interactions:
         access\": \"Deny\",\r\n          \"priority\": 65500,\r\n          \"direction\"\
         : \"Inbound\"\r\n        }\r\n      },\r\n      {\r\n        \"name\": \"\
         AllowVnetOutBound\",\r\n        \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001/providers/Microsoft.Network/networkSecurityGroups/nsg1/defaultSecurityRules/AllowVnetOutBound\"\
-        ,\r\n        \"etag\": \"W/\\\"c604fd2b-a872-43c0-aec2-b7b06d3f3d0c\\\"\"\
+        ,\r\n        \"etag\": \"W/\\\"d7a3b979-470d-4a3c-9c3c-505ec46e5487\\\"\"\
         ,\r\n        \"properties\": {\r\n          \"provisioningState\": \"Updating\"\
         ,\r\n          \"description\": \"Allow outbound traffic from all VMs to all\
         \ VMs in VNET\",\r\n          \"protocol\": \"*\",\r\n          \"sourcePortRange\"\
@@ -115,7 +115,7 @@ interactions:
         ,\r\n          \"access\": \"Allow\",\r\n          \"priority\": 65000,\r\n\
         \          \"direction\": \"Outbound\"\r\n        }\r\n      },\r\n      {\r\
         \n        \"name\": \"AllowInternetOutBound\",\r\n        \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001/providers/Microsoft.Network/networkSecurityGroups/nsg1/defaultSecurityRules/AllowInternetOutBound\"\
-        ,\r\n        \"etag\": \"W/\\\"c604fd2b-a872-43c0-aec2-b7b06d3f3d0c\\\"\"\
+        ,\r\n        \"etag\": \"W/\\\"d7a3b979-470d-4a3c-9c3c-505ec46e5487\\\"\"\
         ,\r\n        \"properties\": {\r\n          \"provisioningState\": \"Updating\"\
         ,\r\n          \"description\": \"Allow outbound traffic from all VMs to Internet\"\
         ,\r\n          \"protocol\": \"*\",\r\n          \"sourcePortRange\": \"*\"\
@@ -124,7 +124,7 @@ interactions:
         \      \"access\": \"Allow\",\r\n          \"priority\": 65001,\r\n      \
         \    \"direction\": \"Outbound\"\r\n        }\r\n      },\r\n      {\r\n \
         \       \"name\": \"DenyAllOutBound\",\r\n        \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001/providers/Microsoft.Network/networkSecurityGroups/nsg1/defaultSecurityRules/DenyAllOutBound\"\
-        ,\r\n        \"etag\": \"W/\\\"c604fd2b-a872-43c0-aec2-b7b06d3f3d0c\\\"\"\
+        ,\r\n        \"etag\": \"W/\\\"d7a3b979-470d-4a3c-9c3c-505ec46e5487\\\"\"\
         ,\r\n        \"properties\": {\r\n          \"provisioningState\": \"Updating\"\
         ,\r\n          \"description\": \"Deny all outbound traffic\",\r\n       \
         \   \"protocol\": \"*\",\r\n          \"sourcePortRange\": \"*\",\r\n    \
@@ -133,17 +133,17 @@ interactions:
         access\": \"Deny\",\r\n          \"priority\": 65500,\r\n          \"direction\"\
         : \"Outbound\"\r\n        }\r\n      }\r\n    ]\r\n  }\r\n}"}
     headers:
-      azure-asyncoperation: ['https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Network/locations/westus/operations/b1aaf8ed-cd93-4efd-9bf9-6c0ecfae3054?api-version=2015-06-15']
+      azure-asyncoperation: ['https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Network/locations/westus/operations/d4de75e3-d6a6-4ba4-90b5-1148c93f9a19?api-version=2015-06-15']
       cache-control: [no-cache]
       content-length: ['5479']
       content-type: [application/json; charset=utf-8]
-      date: ['Tue, 15 May 2018 22:48:06 GMT']
+      date: ['Wed, 16 May 2018 19:31:12 GMT']
       expires: ['-1']
       pragma: [no-cache]
       server: [Microsoft-HTTPAPI/2.0, Microsoft-HTTPAPI/2.0]
       strict-transport-security: [max-age=31536000; includeSubDomains]
       x-content-type-options: [nosniff]
-      x-ms-ratelimit-remaining-subscription-writes: ['1196']
+      x-ms-ratelimit-remaining-subscription-writes: ['1199']
     status: {code: 201, message: Created}
 - request:
     body: null
@@ -156,14 +156,14 @@ interactions:
           msrest_azure/0.4.29 networkmanagementclient/2.0.0rc2 Azure-SDK-For-Python
           AZURECLI/2.0.33]
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Network/locations/westus/operations/b1aaf8ed-cd93-4efd-9bf9-6c0ecfae3054?api-version=2015-06-15
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Network/locations/westus/operations/d4de75e3-d6a6-4ba4-90b5-1148c93f9a19?api-version=2015-06-15
   response:
     body: {string: "{\r\n  \"status\": \"Succeeded\"\r\n}"}
     headers:
       cache-control: [no-cache]
       content-length: ['29']
       content-type: [application/json; charset=utf-8]
-      date: ['Tue, 15 May 2018 22:48:17 GMT']
+      date: ['Wed, 16 May 2018 19:31:23 GMT']
       expires: ['-1']
       pragma: [no-cache]
       server: [Microsoft-HTTPAPI/2.0, Microsoft-HTTPAPI/2.0]
@@ -186,13 +186,13 @@ interactions:
     uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001/providers/Microsoft.Network/networkSecurityGroups/nsg1?api-version=2015-06-15
   response:
     body: {string: "{\r\n  \"name\": \"nsg1\",\r\n  \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001/providers/Microsoft.Network/networkSecurityGroups/nsg1\"\
-        ,\r\n  \"etag\": \"W/\\\"ee776316-785d-4f45-9866-9538b5819b64\\\"\",\r\n \
+        ,\r\n  \"etag\": \"W/\\\"c41e00d5-388f-4262-8694-3e94ebe68ee9\\\"\",\r\n \
         \ \"type\": \"Microsoft.Network/networkSecurityGroups\",\r\n  \"location\"\
         : \"westus\",\r\n  \"properties\": {\r\n    \"provisioningState\": \"Succeeded\"\
-        ,\r\n    \"resourceGuid\": \"2578c544-15e5-4c86-b8bc-0961d04b5196\",\r\n \
+        ,\r\n    \"resourceGuid\": \"d5c1f489-d1b9-4840-8dc1-b88c1367f0ed\",\r\n \
         \   \"securityRules\": [],\r\n    \"defaultSecurityRules\": [\r\n      {\r\
         \n        \"name\": \"AllowVnetInBound\",\r\n        \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001/providers/Microsoft.Network/networkSecurityGroups/nsg1/defaultSecurityRules/AllowVnetInBound\"\
-        ,\r\n        \"etag\": \"W/\\\"ee776316-785d-4f45-9866-9538b5819b64\\\"\"\
+        ,\r\n        \"etag\": \"W/\\\"c41e00d5-388f-4262-8694-3e94ebe68ee9\\\"\"\
         ,\r\n        \"properties\": {\r\n          \"provisioningState\": \"Succeeded\"\
         ,\r\n          \"description\": \"Allow inbound traffic from all VMs in VNET\"\
         ,\r\n          \"protocol\": \"*\",\r\n          \"sourcePortRange\": \"*\"\
@@ -202,7 +202,7 @@ interactions:
         \          \"direction\": \"Inbound\"\r\n        }\r\n      },\r\n      {\r\
         \n        \"name\": \"AllowAzureLoadBalancerInBound\",\r\n        \"id\":\
         \ \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001/providers/Microsoft.Network/networkSecurityGroups/nsg1/defaultSecurityRules/AllowAzureLoadBalancerInBound\"\
-        ,\r\n        \"etag\": \"W/\\\"ee776316-785d-4f45-9866-9538b5819b64\\\"\"\
+        ,\r\n        \"etag\": \"W/\\\"c41e00d5-388f-4262-8694-3e94ebe68ee9\\\"\"\
         ,\r\n        \"properties\": {\r\n          \"provisioningState\": \"Succeeded\"\
         ,\r\n          \"description\": \"Allow inbound traffic from azure load balancer\"\
         ,\r\n          \"protocol\": \"*\",\r\n          \"sourcePortRange\": \"*\"\
@@ -211,7 +211,7 @@ interactions:
         ,\r\n          \"access\": \"Allow\",\r\n          \"priority\": 65001,\r\n\
         \          \"direction\": \"Inbound\"\r\n        }\r\n      },\r\n      {\r\
         \n        \"name\": \"DenyAllInBound\",\r\n        \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001/providers/Microsoft.Network/networkSecurityGroups/nsg1/defaultSecurityRules/DenyAllInBound\"\
-        ,\r\n        \"etag\": \"W/\\\"ee776316-785d-4f45-9866-9538b5819b64\\\"\"\
+        ,\r\n        \"etag\": \"W/\\\"c41e00d5-388f-4262-8694-3e94ebe68ee9\\\"\"\
         ,\r\n        \"properties\": {\r\n          \"provisioningState\": \"Succeeded\"\
         ,\r\n          \"description\": \"Deny all inbound traffic\",\r\n        \
         \  \"protocol\": \"*\",\r\n          \"sourcePortRange\": \"*\",\r\n     \
@@ -220,7 +220,7 @@ interactions:
         access\": \"Deny\",\r\n          \"priority\": 65500,\r\n          \"direction\"\
         : \"Inbound\"\r\n        }\r\n      },\r\n      {\r\n        \"name\": \"\
         AllowVnetOutBound\",\r\n        \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001/providers/Microsoft.Network/networkSecurityGroups/nsg1/defaultSecurityRules/AllowVnetOutBound\"\
-        ,\r\n        \"etag\": \"W/\\\"ee776316-785d-4f45-9866-9538b5819b64\\\"\"\
+        ,\r\n        \"etag\": \"W/\\\"c41e00d5-388f-4262-8694-3e94ebe68ee9\\\"\"\
         ,\r\n        \"properties\": {\r\n          \"provisioningState\": \"Succeeded\"\
         ,\r\n          \"description\": \"Allow outbound traffic from all VMs to all\
         \ VMs in VNET\",\r\n          \"protocol\": \"*\",\r\n          \"sourcePortRange\"\
@@ -229,7 +229,7 @@ interactions:
         ,\r\n          \"access\": \"Allow\",\r\n          \"priority\": 65000,\r\n\
         \          \"direction\": \"Outbound\"\r\n        }\r\n      },\r\n      {\r\
         \n        \"name\": \"AllowInternetOutBound\",\r\n        \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001/providers/Microsoft.Network/networkSecurityGroups/nsg1/defaultSecurityRules/AllowInternetOutBound\"\
-        ,\r\n        \"etag\": \"W/\\\"ee776316-785d-4f45-9866-9538b5819b64\\\"\"\
+        ,\r\n        \"etag\": \"W/\\\"c41e00d5-388f-4262-8694-3e94ebe68ee9\\\"\"\
         ,\r\n        \"properties\": {\r\n          \"provisioningState\": \"Succeeded\"\
         ,\r\n          \"description\": \"Allow outbound traffic from all VMs to Internet\"\
         ,\r\n          \"protocol\": \"*\",\r\n          \"sourcePortRange\": \"*\"\
@@ -238,7 +238,7 @@ interactions:
         \      \"access\": \"Allow\",\r\n          \"priority\": 65001,\r\n      \
         \    \"direction\": \"Outbound\"\r\n        }\r\n      },\r\n      {\r\n \
         \       \"name\": \"DenyAllOutBound\",\r\n        \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001/providers/Microsoft.Network/networkSecurityGroups/nsg1/defaultSecurityRules/DenyAllOutBound\"\
-        ,\r\n        \"etag\": \"W/\\\"ee776316-785d-4f45-9866-9538b5819b64\\\"\"\
+        ,\r\n        \"etag\": \"W/\\\"c41e00d5-388f-4262-8694-3e94ebe68ee9\\\"\"\
         ,\r\n        \"properties\": {\r\n          \"provisioningState\": \"Succeeded\"\
         ,\r\n          \"description\": \"Deny all outbound traffic\",\r\n       \
         \   \"protocol\": \"*\",\r\n          \"sourcePortRange\": \"*\",\r\n    \
@@ -250,8 +250,107 @@ interactions:
       cache-control: [no-cache]
       content-length: ['5486']
       content-type: [application/json; charset=utf-8]
-      date: ['Tue, 15 May 2018 22:48:17 GMT']
-      etag: [W/"ee776316-785d-4f45-9866-9538b5819b64"]
+      date: ['Wed, 16 May 2018 19:31:23 GMT']
+      etag: [W/"c41e00d5-388f-4262-8694-3e94ebe68ee9"]
+      expires: ['-1']
+      pragma: [no-cache]
+      server: [Microsoft-HTTPAPI/2.0, Microsoft-HTTPAPI/2.0]
+      strict-transport-security: [max-age=31536000; includeSubDomains]
+      transfer-encoding: [chunked]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+    status: {code: 200, message: OK}
+- request:
+    body: '{"name": "rule1", "properties": {"protocol": "*", "direction": "Inbound",
+      "sourcePortRange": "700-900", "access": "Allow", "destinationAddressPrefix":
+      "*", "sourceAddressPrefix": "*", "priority": 1000, "destinationPortRange": "4444"}}'
+    headers:
+      Accept: [application/json]
+      Accept-Encoding: ['gzip, deflate']
+      CommandName: [network nsg rule create]
+      Connection: [keep-alive]
+      Content-Length: ['234']
+      Content-Type: [application/json; charset=utf-8]
+      User-Agent: [python/3.5.2 (Windows-10-10.0.16299-SP0) requests/2.18.4 msrest/0.4.29
+          msrest_azure/0.4.29 networkmanagementclient/2.0.0rc2 Azure-SDK-For-Python
+          AZURECLI/2.0.33]
+      accept-language: [en-US]
+    method: PUT
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001/providers/Microsoft.Network/networkSecurityGroups/nsg1/securityRules/rule1?api-version=2015-06-15
+  response:
+    body: {string: "{\r\n  \"name\": \"rule1\",\r\n  \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001/providers/Microsoft.Network/networkSecurityGroups/nsg1/securityRules/rule1\"\
+        ,\r\n  \"etag\": \"W/\\\"940357f0-c98b-4c7b-94ad-0520d11a9d19\\\"\",\r\n \
+        \ \"properties\": {\r\n    \"provisioningState\": \"Updating\",\r\n    \"\
+        protocol\": \"*\",\r\n    \"sourcePortRange\": \"700-900\",\r\n    \"destinationPortRange\"\
+        : \"4444\",\r\n    \"sourceAddressPrefix\": \"*\",\r\n    \"destinationAddressPrefix\"\
+        : \"*\",\r\n    \"access\": \"Allow\",\r\n    \"priority\": 1000,\r\n    \"\
+        direction\": \"Inbound\"\r\n  }\r\n}"}
+    headers:
+      azure-asyncoperation: ['https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Network/locations/westus/operations/5e55339c-2bf5-4831-ac8f-428e9ee01102?api-version=2015-06-15']
+      cache-control: [no-cache]
+      content-length: ['613']
+      content-type: [application/json; charset=utf-8]
+      date: ['Wed, 16 May 2018 19:31:23 GMT']
+      expires: ['-1']
+      pragma: [no-cache]
+      server: [Microsoft-HTTPAPI/2.0, Microsoft-HTTPAPI/2.0]
+      strict-transport-security: [max-age=31536000; includeSubDomains]
+      x-content-type-options: [nosniff]
+      x-ms-ratelimit-remaining-subscription-writes: ['1199']
+    status: {code: 201, message: Created}
+- request:
+    body: null
+    headers:
+      Accept: [application/json]
+      Accept-Encoding: ['gzip, deflate']
+      CommandName: [network nsg rule create]
+      Connection: [keep-alive]
+      User-Agent: [python/3.5.2 (Windows-10-10.0.16299-SP0) requests/2.18.4 msrest/0.4.29
+          msrest_azure/0.4.29 networkmanagementclient/2.0.0rc2 Azure-SDK-For-Python
+          AZURECLI/2.0.33]
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Network/locations/westus/operations/5e55339c-2bf5-4831-ac8f-428e9ee01102?api-version=2015-06-15
+  response:
+    body: {string: "{\r\n  \"status\": \"Succeeded\"\r\n}"}
+    headers:
+      cache-control: [no-cache]
+      content-length: ['29']
+      content-type: [application/json; charset=utf-8]
+      date: ['Wed, 16 May 2018 19:31:34 GMT']
+      expires: ['-1']
+      pragma: [no-cache]
+      server: [Microsoft-HTTPAPI/2.0, Microsoft-HTTPAPI/2.0]
+      strict-transport-security: [max-age=31536000; includeSubDomains]
+      transfer-encoding: [chunked]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: [application/json]
+      Accept-Encoding: ['gzip, deflate']
+      CommandName: [network nsg rule create]
+      Connection: [keep-alive]
+      User-Agent: [python/3.5.2 (Windows-10-10.0.16299-SP0) requests/2.18.4 msrest/0.4.29
+          msrest_azure/0.4.29 networkmanagementclient/2.0.0rc2 Azure-SDK-For-Python
+          AZURECLI/2.0.33]
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001/providers/Microsoft.Network/networkSecurityGroups/nsg1/securityRules/rule1?api-version=2015-06-15
+  response:
+    body: {string: "{\r\n  \"name\": \"rule1\",\r\n  \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_extended_nsg000001/providers/Microsoft.Network/networkSecurityGroups/nsg1/securityRules/rule1\"\
+        ,\r\n  \"etag\": \"W/\\\"f557b790-3146-40ae-91a1-896f34e07e2a\\\"\",\r\n \
+        \ \"properties\": {\r\n    \"provisioningState\": \"Succeeded\",\r\n    \"\
+        protocol\": \"*\",\r\n    \"sourcePortRange\": \"700-900\",\r\n    \"destinationPortRange\"\
+        : \"4444\",\r\n    \"sourceAddressPrefix\": \"*\",\r\n    \"destinationAddressPrefix\"\
+        : \"*\",\r\n    \"access\": \"Allow\",\r\n    \"priority\": 1000,\r\n    \"\
+        direction\": \"Inbound\"\r\n  }\r\n}"}
+    headers:
+      cache-control: [no-cache]
+      content-length: ['614']
+      content-type: [application/json; charset=utf-8]
+      date: ['Wed, 16 May 2018 19:31:33 GMT']
+      etag: [W/"f557b790-3146-40ae-91a1-896f34e07e2a"]
       expires: ['-1']
       pragma: [no-cache]
       server: [Microsoft-HTTPAPI/2.0, Microsoft-HTTPAPI/2.0]
@@ -280,9 +379,9 @@ interactions:
     headers:
       cache-control: [no-cache]
       content-length: ['0']
-      date: ['Tue, 15 May 2018 22:48:17 GMT']
+      date: ['Wed, 16 May 2018 19:31:35 GMT']
       expires: ['-1']
-      location: ['https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/operationresults/eyJqb2JJZCI6IlJFU09VUkNFR1JPVVBERUxFVElPTkpPQi1DTEk6NUZURVNUOjVGRVhURU5ERUQ6NUZOU0dBS1g2V0hWUFFZU0RPWlBQUVFBTnxDREQ3QTUyOUE5MjU2OEE2LVdFU1RVUyIsImpvYkxvY2F0aW9uIjoid2VzdHVzIn0?api-version=2016-02-01']
+      location: ['https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/operationresults/eyJqb2JJZCI6IlJFU09VUkNFR1JPVVBERUxFVElPTkpPQi1DTEk6NUZURVNUOjVGRVhURU5ERUQ6NUZOU0dBU0dKRDRBUVFUWEdVU1RGRU9CWXxDRkI5RUVFOUJCMzU3RTlFLVdFU1RVUyIsImpvYkxvY2F0aW9uIjoid2VzdHVzIn0?api-version=2016-02-01']
       pragma: [no-cache]
       strict-transport-security: [max-age=31536000; includeSubDomains]
       x-content-type-options: [nosniff]

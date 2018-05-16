@@ -1,7 +1,7 @@
 interactions:
 - request:
-    body: '{"location": "westus", "tags": {"date": "2018-05-15T22:36:28Z", "product":
-      "azurecli", "cause": "automation"}}'
+    body: '{"tags": {"date": "2018-05-16T20:17:00Z", "product": "azurecli", "cause":
+      "automation"}, "location": "westus"}'
     headers:
       Accept: [application/json]
       Accept-Encoding: ['gzip, deflate']
@@ -16,18 +16,118 @@ interactions:
     method: PUT
     uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_express_route000001?api-version=2016-02-01
   response:
-    body: {string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_express_route000001","name":"cli_test_express_route000001","location":"westus","tags":{"date":"2018-05-15T22:36:28Z","product":"azurecli","cause":"automation"},"properties":{"provisioningState":"Succeeded"}}'}
+    body: {string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_express_route000001","name":"cli_test_express_route000001","location":"westus","tags":{"date":"2018-05-16T20:17:00Z","product":"azurecli","cause":"automation"},"properties":{"provisioningState":"Succeeded"}}'}
     headers:
       cache-control: [no-cache]
       content-length: ['384']
       content-type: [application/json; charset=utf-8]
-      date: ['Tue, 15 May 2018 22:36:28 GMT']
+      date: ['Wed, 16 May 2018 20:17:02 GMT']
       expires: ['-1']
       pragma: [no-cache]
       strict-transport-security: [max-age=31536000; includeSubDomains]
       x-content-type-options: [nosniff]
-      x-ms-ratelimit-remaining-subscription-writes: ['1198']
+      x-ms-ratelimit-remaining-subscription-writes: ['1199']
     status: {code: 201, message: Created}
+- request:
+    body: null
+    headers:
+      Accept: [application/json]
+      Accept-Encoding: ['gzip, deflate']
+      CommandName: [network express-route create]
+      Connection: [keep-alive]
+      Content-Type: [application/json; charset=utf-8]
+      User-Agent: [python/3.5.2 (Windows-10-10.0.16299-SP0) requests/2.18.4 msrest/0.4.29
+          msrest_azure/0.4.29 resourcemanagementclient/1.2.1 Azure-SDK-For-Python
+          AZURECLI/2.0.33]
+      accept-language: [en-US]
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/cli_test_express_route000001?api-version=2016-02-01
+  response:
+    body: {string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_express_route000001","name":"cli_test_express_route000001","location":"westus","tags":{"date":"2018-05-16T20:17:00Z","product":"azurecli","cause":"automation"},"properties":{"provisioningState":"Succeeded"}}'}
+    headers:
+      cache-control: [no-cache]
+      content-length: ['384']
+      content-type: [application/json; charset=utf-8]
+      date: ['Wed, 16 May 2018 20:17:03 GMT']
+      expires: ['-1']
+      pragma: [no-cache]
+      strict-transport-security: [max-age=31536000; includeSubDomains]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+    status: {code: 200, message: OK}
+- request:
+    body: '{"properties": {"serviceProviderProperties": {"peeringLocation": "Area51",
+      "serviceProviderName": "Microsoft ER Test", "bandwidthInMbps": 50}}, "location":
+      "westus", "sku": {"tier": "Premium", "family": "MeteredData", "name": "Premium_MeteredData"}}'
+    headers:
+      Accept: [application/json]
+      Accept-Encoding: ['gzip, deflate']
+      CommandName: [network express-route create]
+      Connection: [keep-alive]
+      Content-Length: ['249']
+      Content-Type: [application/json; charset=utf-8]
+      User-Agent: [python/3.5.2 (Windows-10-10.0.16299-SP0) requests/2.18.4 msrest/0.4.29
+          msrest_azure/0.4.29 networkmanagementclient/2.0.0rc2 Azure-SDK-For-Python
+          AZURECLI/2.0.33]
+      accept-language: [en-US]
+    method: PUT
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_express_route000001/providers/Microsoft.Network/expressRouteCircuits/circuit1?api-version=2015-06-15
+  response:
+    body: {string: "{\r\n  \"name\": \"circuit1\",\r\n  \"id\": \"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/cli_test_express_route000001/providers/Microsoft.Network/expressRouteCircuits/circuit1\"\
+        ,\r\n  \"etag\": \"W/\\\"37243d93-ecbc-4a80-ac5b-4a357b21bbbd\\\"\",\r\n \
+        \ \"type\": \"Microsoft.Network/expressRouteCircuits\",\r\n  \"location\"\
+        : \"westus\",\r\n  \"properties\": {\r\n    \"provisioningState\": \"Updating\"\
+        ,\r\n    \"resourceGuid\": \"e141ed79-e33b-4cb3-9c42-1be700a732bb\",\r\n \
+        \   \"peerings\": [],\r\n    \"authorizations\": [],\r\n    \"serviceProviderProperties\"\
+        : {\r\n      \"serviceProviderName\": \"Microsoft ER Test\",\r\n      \"peeringLocation\"\
+        : \"Area51\",\r\n      \"bandwidthInMbps\": 50\r\n    },\r\n    \"circuitProvisioningState\"\
+        : \"Disabled\",\r\n    \"allowClassicOperations\": false,\r\n    \"serviceKey\"\
+        : \"00000000-0000-0000-0000-000000000000\",\r\n    \"serviceProviderProvisioningState\"\
+        : \"NotProvisioned\"\r\n  },\r\n  \"sku\": {\r\n    \"name\": \"Premium_MeteredData\"\
+        ,\r\n    \"tier\": \"Premium\",\r\n    \"family\": \"MeteredData\"\r\n  }\r\
+        \n}"}
+    headers:
+      azure-asyncoperation: ['https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Network/locations/westus/operations/138f741d-97c9-4407-b41a-9dcbdd78a909?api-version=2015-06-15']
+      cache-control: [no-cache]
+      content-length: ['1013']
+      content-type: [application/json; charset=utf-8]
+      date: ['Wed, 16 May 2018 20:17:04 GMT']
+      expires: ['-1']
+      pragma: [no-cache]
+      server: [Microsoft-HTTPAPI/2.0, Microsoft-HTTPAPI/2.0]
+      strict-transport-security: [max-age=31536000; includeSubDomains]
+      x-content-type-options: [nosniff]
+      x-ms-ratelimit-remaining-subscription-writes: ['1199']
+    status: {code: 201, message: Created}
+- request:
+    body: null
+    headers:
+      Accept: [application/json]
+      Accept-Encoding: ['gzip, deflate']
+      CommandName: [network express-route create]
+      Connection: [keep-alive]
+      User-Agent: [python/3.5.2 (Windows-10-10.0.16299-SP0) requests/2.18.4 msrest/0.4.29
+          msrest_azure/0.4.29 networkmanagementclient/2.0.0rc2 Azure-SDK-For-Python
+          AZURECLI/2.0.33]
+    method: GET
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Network/locations/westus/operations/138f741d-97c9-4407-b41a-9dcbdd78a909?api-version=2015-06-15
+  response:
+    body: {string: "{\r\n  \"status\": \"Failed\",\r\n  \"error\": {\r\n    \"code\"\
+        : \"SubscriptionNotAuthorized\",\r\n    \"message\": \"This subscriptionId:7dec1fd6-2e45-4798-9be5-efba704319b4\
+        \ is not enabled for this feature\",\r\n    \"details\": []\r\n  }\r\n}"}
+    headers:
+      cache-control: [no-cache]
+      content-length: ['215']
+      content-type: [application/json; charset=utf-8]
+      date: ['Wed, 16 May 2018 20:17:14 GMT']
+      expires: ['-1']
+      pragma: [no-cache]
+      server: [Microsoft-HTTPAPI/2.0, Microsoft-HTTPAPI/2.0]
+      strict-transport-security: [max-age=31536000; includeSubDomains]
+      transfer-encoding: [chunked]
+      vary: [Accept-Encoding]
+      x-content-type-options: [nosniff]
+    status: {code: 200, message: OK}
 - request:
     body: null
     headers:
@@ -48,12 +148,12 @@ interactions:
     headers:
       cache-control: [no-cache]
       content-length: ['0']
-      date: ['Tue, 15 May 2018 22:36:30 GMT']
+      date: ['Wed, 16 May 2018 20:17:16 GMT']
       expires: ['-1']
-      location: ['https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/operationresults/eyJqb2JJZCI6IlJFU09VUkNFR1JPVVBERUxFVElPTkpPQi1DTEk6NUZURVNUOjVGRVhQUkVTUzo1RlJPVVRFTlpFS0lDM1ZEUUlSNDdTVFVTVXw0ODJGMTc5Q0YzRDVFMEVBLVdFU1RVUyIsImpvYkxvY2F0aW9uIjoid2VzdHVzIn0?api-version=2016-02-01']
+      location: ['https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/operationresults/eyJqb2JJZCI6IlJFU09VUkNFR1JPVVBERUxFVElPTkpPQi1DTEk6NUZURVNUOjVGRVhQUkVTUzo1RlJPVVRFNzJFV1BOM0VWSVZMUjJPNEZJWnxGNjk0QkQzMDkwRDQ3OURBLVdFU1RVUyIsImpvYkxvY2F0aW9uIjoid2VzdHVzIn0?api-version=2016-02-01']
       pragma: [no-cache]
       strict-transport-security: [max-age=31536000; includeSubDomains]
       x-content-type-options: [nosniff]
-      x-ms-ratelimit-remaining-subscription-deletes: ['14998']
+      x-ms-ratelimit-remaining-subscription-deletes: ['14999']
     status: {code: 202, message: Accepted}
 version: 1
