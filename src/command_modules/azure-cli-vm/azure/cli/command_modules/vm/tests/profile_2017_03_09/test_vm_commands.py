@@ -83,7 +83,7 @@ class VMOpenPortTest(ScenarioTest):
             'vm': 'vm1'
         })
 
-        self.cmd('vm create -g {rg} -l westus -n {vm} --admin-username ubuntu --image Canonical:UbuntuServer:14.04.4-LTS:latest --admin-password @PasswordPassword1! --public-ip-address-allocation dynamic --authentication-type password')
+        self.cmd('vm create -g {rg} -l westus -n {vm} --admin-username ubuntu --image Canonical:UbuntuServer:14.04.4-LTS:latest --admin-password @PasswordPassword1! --public-ip-address-allocation dynamic --authentication-type password --use-unmanaged-disk')
 
         # min params - apply to existing NIC (updates existing NSG)
         self.kwargs['nsg_id'] = self.cmd('vm open-port -g {rg} -n {vm} --port "*" --priority 900').get_output_in_json()['id']
@@ -110,7 +110,7 @@ class VMShowListSizesListIPAddressesScenarioTest(ScenarioTest):
         })
         # Expecting no results at the beginning
         self.cmd('vm list-ip-addresses --resource-group {rg}', checks=self.is_empty())
-        self.cmd('vm create --resource-group {rg} --location {loc} -n {vm} --admin-username ubuntu --image Canonical:UbuntuServer:14.04.4-LTS:latest --admin-password testPassword0 --public-ip-address-allocation {allocation} --authentication-type password')
+        self.cmd('vm create --resource-group {rg} --location {loc} -n {vm} --admin-username ubuntu --image Canonical:UbuntuServer:14.04.4-LTS:latest --admin-password testPassword0 --public-ip-address-allocation {allocation} --authentication-type password --use-unmanaged-disk')
         result = self.cmd('vm show --resource-group {rg} --name {vm} -d', checks=[
             self.check('type(@)', 'object'),
             self.check('name', '{vm}'),
@@ -234,36 +234,6 @@ class VMGeneralizeScenarioTest(ScenarioTest):
         self.cmd('vm capture -g {rg} -n {vm} --vhd-name-prefix vmtest',
                  checks=self.is_empty())
 
-        # capture to a custom image
-        self.kwargs['image'] = 'myImage'
-        self.cmd('image create -g {rg} -n {image} --source {vm}', checks=[
-            self.check('name', '{image}'),
-            self.check('sourceVirtualMachine.id', vm['id']),
-            self.check('storageProfile.zoneResilient', None)
-        ])
-
-    @ResourceGroupPreparer(name_prefix='cli_test_generalize_vm')
-    def test_vm_capture_zone_resilient_image(self, resource_group):
-
-        self.kwargs.update({
-            'loc': 'francecentral',
-            'vm': 'vm-generalize'
-        })
-
-        self.cmd('vm create -g {rg} --location {loc} -n {vm} --admin-username ubuntu --image centos --admin-password testPassword0 --authentication-type password')
-        self.cmd('vm deallocate -g {rg} -n {vm}')
-        # Should be able to generalize the VM after it has been stopped
-        self.cmd('vm generalize -g {rg} -n {vm}', checks=self.is_empty())
-        vm = self.cmd('vm show -g {rg} -n {vm}').get_output_in_json()
-
-        # capture to a custom image
-        self.kwargs['image'] = 'myImage2'
-        self.cmd('image create -g {rg} -n {image} --source {vm} --zone-resilient -l {loc}', checks=[
-            self.check('name', '{image}'),
-            self.check('sourceVirtualMachine.id', vm['id']),
-            self.check('storageProfile.zoneResilient', True)
-        ])
-
 
 class VMVMSSWindowsLicenseTest(ScenarioTest):
 
@@ -274,14 +244,14 @@ class VMVMSSWindowsLicenseTest(ScenarioTest):
             'vm': 'winvm',
             'vmss': 'winvmss'
         })
-        self.cmd('vm create -g {rg} -n {vm} --image Win2012R2Datacenter --admin-username clitest1234 --admin-password Test123456789# --license-type Windows_Server')
+        self.cmd('vm create -g {rg} -n {vm} --image Win2012R2Datacenter --admin-username clitest1234 --admin-password Test123456789# --license-type Windows_Server --use-unmanaged-disk')
         self.cmd('vm show -g {rg} -n {vm}', checks=[
             self.check('licenseType', 'Windows_Server')
         ])
         self.cmd('vm update -g {rg} -n {vm} --license-type None', checks=[
             self.check('licenseType', 'None')
         ])
-        self.cmd('vmss create -g {rg} -n {vmss} --image Win2012R2Datacenter --admin-username clitest1234 --admin-password Test123456789# --license-type Windows_Server --instance-count 1')
+        self.cmd('vmss create -g {rg} -n {vmss} --image Win2012R2Datacenter --admin-username clitest1234 --admin-password Test123456789# --license-type Windows_Server --instance-count 1 --use-unmanaged-disk')
         self.cmd('vmss show -g {rg} -n {vmss}', checks=[
             self.check('virtualMachineProfile.licenseType', 'Windows_Server')
         ])
@@ -289,7 +259,7 @@ class VMVMSSWindowsLicenseTest(ScenarioTest):
             self.check('virtualMachineProfile.licenseType', 'None')
         ])
 
-
+'''
 # TODO: convert back to ScenarioTest when #5740 is fixed.
 class VMCustomImageTest(LiveScenarioTest):
 
@@ -346,8 +316,8 @@ class VMCustomImageTest(LiveScenarioTest):
             self.check("vmss.virtualMachineProfile.storageProfile.dataDisks[0].createOption", 'FromImage'),
             self.check("vmss.virtualMachineProfile.storageProfile.dataDisks[0].managedDisk.storageAccountType", 'Standard_LRS')
         ])
-
-
+'''
+'''
 # TODO: convert back to ScenarioTest when #5740 is fixed.
 class VMImageWithPlanTest(LiveScenarioTest):
 
@@ -379,7 +349,7 @@ class VMImageWithPlanTest(LiveScenarioTest):
         # repeat the same command using --urn
         self.cmd('vm image accept-terms --urn {urn}', checks=self.check('accepted', True))
         self.cmd('vm create -g {rg} -n vm1 --no-wait --image {urn}')
-
+'''
 
 class VMCreateFromUnmanagedDiskTest(ScenarioTest):
 
@@ -403,7 +373,7 @@ class VMCreateFromUnmanagedDiskTest(ScenarioTest):
             'vm': 'vm2',
             'os_disk': 'os1'
         })
-        self.cmd('disk create -g {rg} -n {os_disk} --source {os_disk_vhd_uri}',
+        self.cmd('unmanaged-disk create -g {rg} -n {os_disk} --source {os_disk_vhd_uri}',
                  checks=self.check('name', '{os_disk}'))
         # create a vm by attaching to it
         self.cmd('vm create -g {rg} -n {vm} --attach-os-disk {os_disk} --os-type linux',
@@ -463,7 +433,7 @@ class VMCreateWithSpecializedUnmanagedDiskTest(ScenarioTest):
 
 
 class VMAttachDisksOnCreate(ScenarioTest):
-
+    '''
     @ResourceGroupPreparer()
     def test_vm_create_by_attach_os_and_data_disks(self, resource_group):
         # the testing below follow a real custom's workflow requiring the support of attaching data disks on create
@@ -496,7 +466,7 @@ class VMAttachDisksOnCreate(ScenarioTest):
             self.check('storageProfile.dataDisks[0].managedDisk.storageAccountType', 'Premium_LRS'),
             self.check('storageProfile.osDisk.diskSizeGb', 100)
         ])
-
+'''
     @ResourceGroupPreparer()
     def test_vm_create_by_attach_unmanaged_os_and_data_disks(self, resource_group):
         # creating a vm
@@ -525,12 +495,7 @@ class VMOSDiskSize(ScenarioTest):
         result = self.cmd('storage blob list --account-name {sa} --container-name vhds').get_output_in_json()
         self.assertTrue(result[0]['properties']['contentLength'] > 75000000000)
 
-        # test managed disk
-        self.cmd('vm create -g {rg} -n vm1 --image centos --admin-username centosadmin --admin-password testPassword0 --authentication-type password --os-disk-size-gb 75')
-        self.cmd('vm show -g {rg} -n vm1',
-                 checks=self.check('storageProfile.osDisk.diskSizeGb', 75))
-
-
+'''
 class VMManagedDiskScenarioTest(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_managed_disk')
@@ -589,8 +554,8 @@ class VMManagedDiskScenarioTest(ScenarioTest):
             self.check('storageProfile.dataDisks[1].lun', 1),
             self.check('tags.tag1', 'i1')
         ])
-
-
+'''
+'''
 class VMWriteAcceleratorScenarioTest(ScenarioTest):
 
     @record_only()  # this test requires M series of VM with 64+ cores. Being in live-run is not feasible due to quota limit
@@ -617,7 +582,7 @@ class VMWriteAcceleratorScenarioTest(ScenarioTest):
             self.check('storageProfile.dataDisks[0].writeAcceleratorEnabled', True),
             self.check('storageProfile.dataDisks[1].writeAcceleratorEnabled', False)
         ])
-
+'''
 
 class VMCreateAndStateModificationsScenarioTest(ScenarioTest):
 
@@ -714,7 +679,7 @@ class VMNoWaitScenarioTest(ScenarioTest):
             'loc': 'westus',
             'vm': 'vmnowait2'
         })
-        self.cmd('vm create -g {rg} -n {vm} --admin-username user12 --admin-password testPassword0 --authentication-type password --image UbuntuLTS --no-wait',
+        self.cmd('vm create -g {rg} -n {vm} --admin-username user12 --admin-password testPassword0 --authentication-type password --image UbuntuLTS --no-wait --use-unmanaged-disk',
                  checks=self.is_empty())
         self.cmd('vm wait -g {rg} -n {vm} --custom "instanceView.statuses[?code==\'PowerState/running\']"',
                  checks=self.is_empty())
@@ -790,30 +755,6 @@ class VMAvailSetLiveScenarioTest(ScenarioTest):
         ])
 
 
-class ComputeListSkusScenarioTest(ScenarioTest):
-
-    @AllowLargeResponse(size_kb=2048)
-    def test_list_compute_skus_table_output(self):
-        result = self.cmd('vm list-skus -l westus -otable')
-        lines = result.output.split('\n')
-        # 1st line is header
-        self.assertEqual(lines[0].split(), ['ResourceType', 'Locations', 'Name', 'Zones', 'Capabilities', 'Tier', 'Size'])
-        # spot check the first 3 entries
-        fd_found, ud_found, size_found = False, False, False
-        for l in lines[1:]:
-            parts = l.split()
-            if not fd_found and (parts == ['availabilitySets', 'westus', 'Aligned', 'MaximumPlatformFaultDomainCount=3']):
-                fd_found = True
-            elif not ud_found and (parts == ['availabilitySets', 'westus', 'Classic', 'MaximumPlatformFaultDomainCount=3']):
-                ud_found = True
-            elif not size_found and (parts == ['virtualMachines', 'westus', 'Standard_DS1_v2', 'LowPriorityCapable=True', 'Standard', 'DS1_v2']):
-                size_found = True
-
-        self.assertTrue(fd_found)
-        self.assertTrue(ud_found)
-        self.assertTrue(size_found)
-
-
 class VMExtensionScenarioTest(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_vm_extension')
@@ -830,7 +771,7 @@ class VMExtensionScenarioTest(ScenarioTest):
             'user': user_name
         })
 
-        self.cmd('vm create -n {vm} -g {rg} --image UbuntuLTS --authentication-type password --admin-username user11 --admin-password testPassword0')
+        self.cmd('vm create -n {vm} -g {rg} --image UbuntuLTS --authentication-type password --admin-username user11 --admin-password testPassword0 --use-unmanaged-disk')
 
         try:
             self.cmd('vm extension list --vm-name {vm} --resource-group {rg}',
@@ -907,7 +848,7 @@ class VMCreateUbuntuScenarioTest(ScenarioTest):
             'ssh_key': TEST_SSH_KEY_PUB,
             'loc': resource_group_location
         })
-        self.cmd('vm create --resource-group {rg} --admin-username {username} --name {vm} --authentication-type {auth} --image {image} --ssh-key-value \'{ssh_key}\' --location {loc} --data-disk-sizes-gb 1 --data-disk-caching ReadOnly')
+        self.cmd('vm create --resource-group {rg} --admin-username {username} --name {vm} --authentication-type {auth} --image {image} --ssh-key-value \'{ssh_key}\' --location {loc} --data-disk-sizes-gb 1 --data-disk-caching ReadOnly --use-unmanaged-disk')
 
         self.cmd('vm show -g {rg} -n {vm}', checks=[
             self.check('provisioningState', 'Succeeded'),
@@ -922,7 +863,7 @@ class VMCreateUbuntuScenarioTest(ScenarioTest):
         ])
 
         # test for idempotency--no need to reverify, just ensure the command doesn't fail
-        self.cmd('vm create --resource-group {rg} --admin-username {username} --name {vm} --authentication-type {auth} --image {image} --ssh-key-value \'{ssh_key}\' --location {loc} --data-disk-sizes-gb 1 --data-disk-caching ReadOnly  ')
+        self.cmd('vm create --resource-group {rg} --admin-username {username} --name {vm} --authentication-type {auth} --image {image} --ssh-key-value \'{ssh_key}\' --location {loc} --data-disk-sizes-gb 1 --data-disk-caching ReadOnly --use-unmanaged-disk')
 
 
 class VMMultiNicScenarioTest(ScenarioTest):  # pylint: disable=too-many-instance-attributes
@@ -1075,7 +1016,7 @@ class DiagnosticsExtensionInstallTest(ScenarioTest):
             'vmss': 'testdiagvmss'
         })
 
-        self.cmd('vmss create -g {rg} -n {vmss} --image UbuntuLTS --authentication-type password --admin-username user11 --admin-password TestTest12#$')
+        self.cmd('vmss create -g {rg} -n {vmss} --image UbuntuLTS --authentication-type password --admin-username user11 --admin-password TestTest12#$ --use-unmanaged-disk')
         self.cmd('vm create -g {rg} -n {vm} --image UbuntuLTS --authentication-type password --admin-username user11 --admin-password TestTest12#$ --use-unmanaged-disk')
         storage_sastoken = '123'  # use junk keys, do not retrieve real keys which will get into the recording
         _, protected_settings = tempfile.mkstemp()
@@ -1223,7 +1164,7 @@ class VMCreateCustomIP(ScenarioTest):
             'public_ip_sku': 'Standard'
         })
 
-        self.cmd('vm create -n {vm} -g {rg} --image openSUSE-Leap --admin-username user11 --private-ip-address 10.0.0.5 --public-ip-sku {public_ip_sku} --public-ip-address-dns-name {dns} --generate-ssh-keys')
+        self.cmd('vm create -n {vm} -g {rg} --image openSUSE-Leap --admin-username user11 --private-ip-address 10.0.0.5 --public-ip-sku {public_ip_sku} --public-ip-address-dns-name {dns} --generate-ssh-keys --use-unmanaged-disk')
 
         self.cmd('network public-ip show -n {vm}PublicIP -g {rg}', checks=[
             self.check('publicIpAllocationMethod', 'Static'),
@@ -1234,51 +1175,10 @@ class VMCreateCustomIP(ScenarioTest):
                  checks=self.check('ipConfigurations[0].privateIpAllocationMethod', 'Static'))
 
         # verify the default should be "Basic" sku with "Dynamic" allocation method
-        self.cmd('vm create -n {vm2} -g {rg} --image openSUSE-Leap --admin-username user11 --generate-ssh-keys')
+        self.cmd('vm create -n {vm2} -g {rg} --image openSUSE-Leap --admin-username user11 --generate-ssh-keys --use-unmanaged-disk')
         self.cmd('network public-ip show -n {vm2}PublicIP -g {rg}', checks=[
             self.check('publicIpAllocationMethod', 'Dynamic'),
             self.check('sku.name', 'Basic')
-        ])
-
-
-class VMDiskAttachDetachTest(ScenarioTest):
-
-    @ResourceGroupPreparer(name_prefix='cli-test-disk')
-    def test_vm_disk_attach_detach(self, resource_group):
-
-        self.kwargs.update({
-            'loc': 'westus',
-            'vm': 'vm-diskattach-test',
-            'disk1': 'd1',
-            'disk2': 'd2'
-        })
-
-        self.cmd('vm create -g {rg} --location {loc} -n {vm} --admin-username admin123 --image centos --admin-password testPassword0 --authentication-type password')
-
-        self.cmd('vm disk attach -g {rg} --vm-name {vm} --disk {disk1} --new --size-gb 1 --caching ReadOnly')
-        self.cmd('vm disk attach -g {rg} --vm-name {vm} --disk {disk2} --new --size-gb 2 --lun 2 --sku standard_lrs')
-        self.cmd('vm show -g {rg} -n {vm}', checks=[
-            self.check('length(storageProfile.dataDisks)', 2),
-            self.check('storageProfile.dataDisks[0].name', '{disk1}'),
-            self.check('storageProfile.dataDisks[0].caching', 'ReadOnly'),
-            self.check('storageProfile.dataDisks[0].managedDisk.storageAccountType', 'Premium_LRS'),
-            self.check('storageProfile.dataDisks[1].name', '{disk2}'),
-            self.check('storageProfile.dataDisks[1].lun', 2),
-            self.check('storageProfile.dataDisks[1].managedDisk.storageAccountType', 'Standard_LRS'),
-            self.check('storageProfile.dataDisks[1].caching', 'None')
-        ])
-        self.cmd('vm disk detach -g {rg} --vm-name {vm} -n {disk2}')
-        self.cmd('vm show -g {rg} -n {vm}', checks=[
-            self.check('length(storageProfile.dataDisks)', 1),
-            self.check('storageProfile.dataDisks[0].name', '{disk1}'),
-        ])
-        self.cmd('vm disk detach -g {rg} --vm-name {vm} -n {disk1}')
-        self.cmd('vm show -g {rg} -n {vm}',
-                 checks=self.check('length(storageProfile.dataDisks)', 0))
-        self.cmd('vm disk attach -g {rg} --vm-name {vm} --disk {disk1} --caching ReadWrite --sku standard_lrs')
-        self.cmd('vm show -g {rg} -n {vm}', checks=[
-            self.check('storageProfile.dataDisks[0].caching', 'ReadWrite'),
-            self.check('storageProfile.dataDisks[0].managedDisk.storageAccountType', 'Standard_LRS'),
         ])
 
 
@@ -1347,7 +1247,7 @@ class VMCreateCustomDataScenarioTest(ScenarioTest):
             'ssh_key': TEST_SSH_KEY_PUB
         })
 
-        self.cmd('vm create -g {rg} -n {vm} --admin-username {username} --authentication-type {auth} --image {image} --ssh-key-value \'{ssh_key}\' -l {loc} --custom-data \'{custom_data}\'')
+        self.cmd('vm create -g {rg} -n {vm} --admin-username {username} --authentication-type {auth} --image {image} --ssh-key-value \'{ssh_key}\' -l {loc} --custom-data \'{custom_data}\' --use-unmanaged-disk')
 
         # custom data is write only, hence we have no automatic way to cross check. Here we just verify VM was provisioned
         self.cmd('vm show -g {rg} -n {vm}',
@@ -1635,7 +1535,7 @@ class SecretsScenarioTest(ScenarioTest):  # pylint: disable=too-many-instance-at
         vm_format = self.cmd('vm secret format -s {secret_out}').get_output_in_json()
         self.kwargs['secrets'] = json.dumps(vm_format)
 
-        self.cmd('vm create -g {rg} -n {vm} --admin-username {admin} --authentication-type {auth} --image {image} --ssh-key-value \'{ssh_key}\' -l {loc} --secrets \'{secrets}\'')
+        self.cmd('vm create -g {rg} -n {vm} --admin-username {admin} --authentication-type {auth} --image {image} --ssh-key-value \'{ssh_key}\' -l {loc} --secrets \'{secrets}\' --use-unmanaged-disk')
 
         self.cmd('vm show -g {rg} -n {vm}', checks=[
             self.check('provisioningState', 'Succeeded'),
@@ -1671,7 +1571,7 @@ class SecretsScenarioTest(ScenarioTest):  # pylint: disable=too-many-instance-at
         self.kwargs['secret_out'] = self.cmd('keyvault secret list-versions --vault-name {vault} -n cert1 --query "[?attributes.enabled].id" -o tsv').output.strip()
         self.kwargs['secrets'] = self.cmd('vm secret format -s {secret_out} --certificate-store "My"').get_output_in_json()
 
-        self.cmd('vm create -g {rg} -n {vm} --admin-username {admin} --admin-password VerySecret!12 --image {image} -l {loc} --secrets "{secrets}"')
+        self.cmd('vm create -g {rg} -n {vm} --admin-username {admin} --admin-password VerySecret!12 --image {image} -l {loc} --secrets "{secrets}" --use-unmanaged-disk')
 
         self.cmd('vm show -g {rg} -n {vm}', checks=[
             self.check('provisioningState', 'Succeeded'),
@@ -1964,20 +1864,20 @@ class MSIScenarioTest(ScenarioTest):
 
         with mock.patch('azure.cli.core.commands.arm._gen_guid', side_effect=self.create_guid):
             # create a linux vm with default configuration
-            self.cmd('vm create -g {rg} -n {vm1} --image debian --assign-identity --admin-username admin123 --admin-password PasswordPassword1! --scope {scope}', checks=[
+            self.cmd('vm create -g {rg} -n {vm1} --image debian --assign-identity --admin-username admin123 --admin-password PasswordPassword1! --scope {scope} --use-unmanaged-disk', checks=[
                 self.check('identity.role', 'Contributor'),
                 self.check('identity.scope', '/subscriptions/{sub}/resourceGroups/{rg}'),
             ])
 
             # create a windows vm with reader role on the linux vm
-            result = self.cmd('vm create -g {rg} -n {vm2} --image Win2016Datacenter --assign-identity --scope {vm1_id} --role reader --admin-username admin123 --admin-password PasswordPassword1!', checks=[
+            result = self.cmd('vm create -g {rg} -n {vm2} --image Win2016Datacenter --assign-identity --scope {vm1_id} --role reader --admin-username admin123 --admin-password PasswordPassword1! --use-unmanaged-disk', checks=[
                 self.check('identity.role', 'reader'),
                 self.check('identity.scope', '{vm1_id}'),
             ])
             uuid.UUID(result.get_output_in_json()['identity']['systemAssignedIdentity'])
 
             # create a linux vm w/o identity and later enable it
-            vm3_result = self.cmd('vm create -g {rg} -n {vm3} --image debian --admin-username admin123 --admin-password PasswordPassword1!').get_output_in_json()
+            vm3_result = self.cmd('vm create -g {rg} -n {vm3} --image debian --admin-username admin123 --admin-password PasswordPassword1! --use-unmanaged-disk').get_output_in_json()
             self.assertIsNone(vm3_result.get('identity'))
             result = self.cmd('vm identity assign -g {rg} -n {vm3} --scope {vm1_id} --role reader', checks=[
                 self.check('role', 'reader'),
@@ -1999,20 +1899,20 @@ class MSIScenarioTest(ScenarioTest):
         })
         with mock.patch('azure.cli.core.commands.arm._gen_guid', side_effect=self.create_guid):
             # create linux vm with default configuration
-            self.cmd('vmss create -g {rg} -n {vmss1} --image debian --instance-count 1 --assign-identity --admin-username admin123 --admin-password PasswordPassword1! --scope {scope}', checks=[
+            self.cmd('vmss create -g {rg} -n {vmss1} --image debian --instance-count 1 --assign-identity --admin-username admin123 --admin-password PasswordPassword1! --scope {scope} --use-unmanaged-disk', checks=[
                 self.check('vmss.identity.role', 'Contributor'),
                 self.check('vmss.identity.scope', '/subscriptions/{sub}/resourceGroups/{rg}'),
             ])
 
             # create a windows vm with reader role on the linux vm
-            result = self.cmd('vmss create -g {rg} -n {vmss2} --image Win2016Datacenter --instance-count 1 --assign-identity --scope {vmss1_id} --role reader --admin-username admin123 --admin-password PasswordPassword1!', checks=[
+            result = self.cmd('vmss create -g {rg} -n {vmss2} --image Win2016Datacenter --instance-count 1 --assign-identity --scope {vmss1_id} --role reader --admin-username admin123 --admin-password PasswordPassword1! --use-unmanaged-disk', checks=[
                 self.check('vmss.identity.role', 'reader'),
                 self.check('vmss.identity.scope', '{vmss1_id}'),
             ]).get_output_in_json()
             uuid.UUID(result['vmss']['identity']['systemAssignedIdentity'])
 
             # create a linux vm w/o identity and later enable it
-            result = self.cmd('vmss create -g {rg} -n {vmss3} --image debian --instance-count 1 --admin-username admin123 --admin-password PasswordPassword1!').get_output_in_json()['vmss']
+            result = self.cmd('vmss create -g {rg} -n {vmss3} --image debian --instance-count 1 --admin-username admin123 --admin-password PasswordPassword1! --use-unmanaged-disk').get_output_in_json()['vmss']
             self.assertIsNone(result.get('identity'))
 
             result = self.cmd('vmss identity assign -g {rg} -n {vmss3} --scope "{vmss1_id}" --role reader', checks=[
@@ -2032,24 +1932,24 @@ class MSIScenarioTest(ScenarioTest):
         })
 
         # create a linux vm with identity but w/o a role assignment (--scope "")
-        self.cmd('vm create -g {rg} -n {vm1} --image debian --assign-identity --admin-username admin123 --admin-password PasswordPassword1!', checks=[
+        self.cmd('vm create -g {rg} -n {vm1} --image debian --assign-identity --admin-username admin123 --admin-password PasswordPassword1! --use-unmanaged-disk', checks=[
             self.check('identity.scope', None),
             self.check('identity.role', None),
         ])
 
         # create a vmss with identity but w/o a role assignment (--scope "")
-        self.cmd('vmss create -g {rg} -n {vmss1} --image debian --assign-identity --admin-username admin123 --admin-password PasswordPassword1!', checks=[
+        self.cmd('vmss create -g {rg} -n {vmss1} --image debian --assign-identity --admin-username admin123 --admin-password PasswordPassword1! --use-unmanaged-disk', checks=[
             self.check('vmss.identity.scope', None),
         ])
 
         # create a vm w/o identity
-        self.cmd('vm create -g {rg} -n {vm2} --image debian --admin-username admin123 --admin-password PasswordPassword1!')
+        self.cmd('vm create -g {rg} -n {vm2} --image debian --admin-username admin123 --admin-password PasswordPassword1! --use-unmanaged-disk')
         # assign identity but w/o a role assignment
         self.cmd('vm identity assign -g {rg} -n {vm2}', checks=[
             self.check('scope', None),
         ])
 
-        self.cmd('vmss create -g {rg} -n {vmss2} --image debian --admin-username admin123 --admin-password PasswordPassword1!')
+        self.cmd('vmss create -g {rg} -n {vmss2} --image debian --admin-username admin123 --admin-password PasswordPassword1! --use-unmanaged-disk')
         self.cmd('vmss identity assign -g {rg} -n {vmss2}', checks=[
             self.check('scope', None),
         ])
@@ -2072,7 +1972,7 @@ class MSIScenarioTest(ScenarioTest):
         emsi2_result = self.cmd('identity create -g {rg} -n {emsi2}').get_output_in_json()
 
         # create a vm with only user assigned identity
-        result = self.cmd('vm create -g {rg} -n vm2 --image ubuntults --assign-identity {emsi} --generate-ssh-keys --admin-username {user}', checks=[
+        result = self.cmd('vm create -g {rg} -n vm2 --image ubuntults --assign-identity {emsi} --generate-ssh-keys --admin-username {user} --use-unmanaged-disk', checks=[
             self.check('identity.role', None),
             self.check('identity.scope', None),
             self.check('length(identity.userAssignedIdentities)', 1)
@@ -2081,7 +1981,7 @@ class MSIScenarioTest(ScenarioTest):
         self.assertFalse(result['identity']['systemAssignedIdentity'])
 
         # create a vm with system + user assigned identities
-        result = self.cmd('vm create -g {rg} -n {vm} --image ubuntults --assign-identity {emsi} [system] --role reader --scope {scope} --generate-ssh-keys --admin-username {user}').get_output_in_json()
+        result = self.cmd('vm create -g {rg} -n {vm} --image ubuntults --assign-identity {emsi} [system] --role reader --scope {scope} --generate-ssh-keys --admin-username {user} --use-unmanaged-disk').get_output_in_json()
         self.assertEqual(result['identity']['userAssignedIdentities'][0].lower(), emsi_result['id'].lower())
         result = self.cmd('vm identity show -g {rg} -n {vm}', checks=[
             self.check('length(identityIds)', 1),
@@ -2123,7 +2023,7 @@ class MSIScenarioTest(ScenarioTest):
         emsi2_result = self.cmd('identity create -g {rg} -n {emsi2}').get_output_in_json()
 
         # create a vmss with system + user assigned identities
-        result = self.cmd('vmss create -g {rg} -n {vmss} --image ubuntults --assign-identity {emsi} [system] --role reader --scope {scope} --instance-count 1 --generate-ssh-keys --admin-username ubuntuadmin').get_output_in_json()
+        result = self.cmd('vmss create -g {rg} -n {vmss} --image ubuntults --assign-identity {emsi} [system] --role reader --scope {scope} --instance-count 1 --generate-ssh-keys --admin-username ubuntuadmin --use-unmanaged-disk').get_output_in_json()
         self.assertEqual(result['vmss']['identity']['userAssignedIdentities'][0].lower(), emsi_result['id'].lower())
 
         result = self.cmd('vmss identity show -g {rg} -n {vmss}', checks=[
@@ -2165,7 +2065,7 @@ class VMLiveScenarioTest(LiveScenarioTest):
         self.kwargs.update({'vm': 'vm123'})
 
         with force_progress_logging() as test_io:
-            self.cmd('vm create -g {rg} -n {vm} --admin-username {vm} --admin-password PasswordPassword1! --image debian')
+            self.cmd('vm create -g {rg} -n {vm} --admin-username {vm} --admin-password PasswordPassword1! --image debian --use-unmanaged-disk')
 
         content = test_io.getvalue()
         # check log has okay format
@@ -2178,7 +2078,7 @@ class VMLiveScenarioTest(LiveScenarioTest):
         self.assertTrue('Accepted:'.format(**self.kwargs) in lines)
         self.assertTrue('Succeeded:'.format(**self.kwargs) in lines)
 
-
+'''
 @api_version_constraint(ResourceType.MGMT_COMPUTE, min_api='2017-03-30')
 class VMZoneScenarioTest(ScenarioTest):
 
@@ -2316,7 +2216,7 @@ class VMZoneScenarioTest(ScenarioTest):
             self.check('[0].sku.name', 'Standard'),
             self.check('[0].zones', ['2'])
         ])
-
+'''
 
 class VMRunCommandScenarioTest(ScenarioTest):
 
@@ -2345,7 +2245,7 @@ class VMRunCommandScenarioTest(ScenarioTest):
         self.cmd('vm create -g {rg} -n {vm} --image debian --admin-username clitest1 --admin-password Test12345678!!')
         self.cmd('vm run-command invoke -g {rg} -n{vm} --command-id RunShellScript  --scripts "echo $0 $1" --parameters hello world')
 
-
+'''
 @api_version_constraint(ResourceType.MGMT_COMPUTE, min_api='2017-03-30')
 class VMDiskEncryptionTest(ScenarioTest):
 
@@ -2385,7 +2285,7 @@ class VMDiskEncryptionTest(ScenarioTest):
         self.cmd('vm encryption enable -g {rg} -n {vm} --disk-encryption-keyvault {vault}')
         self.cmd('vm encryption show -g {rg} -n {vm}', checks=[self.check('disks[0].statuses[0].code', 'EncryptionState/encrypted')])
         self.cmd('vm encryption disable -g {rg} -n {vm}')
-
+'''
 
 @api_version_constraint(ResourceType.MGMT_COMPUTE, min_api='2017-03-30')
 class VMSSRollingUpgrade(ScenarioTest):
