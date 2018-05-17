@@ -9,12 +9,8 @@ import os
 import unittest
 
 from azure.cli.core.commands.client_factory import get_subscription_id
-from azure.cli.core.profiles import supported_api_version, ResourceType
-
-from azure.cli.testsdk import ScenarioTest, ResourceGroupPreparer, StorageAccountPreparer, api_version_constraint, live_only
-
+from azure.cli.testsdk import ScenarioTest, ResourceGroupPreparer, StorageAccountPreparer, live_only
 from knack.util import CLIError
-
 from msrestazure.tools import resource_id
 
 TEST_DIR = os.path.abspath(os.path.join(os.path.abspath(__file__), '..'))
@@ -290,7 +286,6 @@ class NetworkAppGatewaySubresourceScenarioTest(ScenarioTest):
         self.cmd('network {res} delete -g {rg} --gateway-name {ag} --no-wait -n {name}')
         self.cmd('network {res} list -g {rg} --gateway-name {ag}', checks=self.check('length(@)', 1))
 
-
     @ResourceGroupPreparer(name_prefix='cli_test_ag_rule')
     def test_network_ag_rule(self, resource_group):
 
@@ -325,7 +320,6 @@ class NetworkAppGatewayPublicIpScenarioTest(ScenarioTest):
             self.check("applicationGateway.frontendIPConfigurations[0].properties.publicIPAddress.contains(id, '{ip}')", True),
             self.check('applicationGateway.frontendIPConfigurations[0].properties.privateIPAllocationMethod', 'Dynamic')
         ])
-
 
 
 class NetworkPublicIpScenarioTest(ScenarioTest):
@@ -371,16 +365,13 @@ class NetworkPublicIpScenarioTest(ScenarioTest):
 
 
 class NetworkZonedPublicIpScenarioTest(ScenarioTest):
-    
+
     @ResourceGroupPreparer(name_prefix='cli_test_zoned_public_ip')
     def test_network_zoned_public_ip(self, resource_group):
         self.kwargs['ip'] = 'pubip'
         self.cmd('network public-ip create -g {rg} -n {ip} -l centralus')
-
         table_output = self.cmd('network public-ip show -g {rg} -n {ip} -otable').output
         self.assertEqual(table_output.splitlines()[2].split(), ['pubip', resource_group, 'centralus', 'Dynamic', '4', 'Succeeded'])
-
-
 
 
 class NetworkLoadBalancerScenarioTest(ScenarioTest):
@@ -737,7 +728,6 @@ class NetworkNicScenarioTest(ScenarioTest):
         self.cmd('network nic list -g {rg}', checks=self.is_empty())
 
 
-
 class NetworkSecurityGroupScenarioTest(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_nsg')
@@ -942,7 +932,6 @@ class NetworkSubnetSetScenarioTest(ScenarioTest):
 
         self.cmd('network vnet delete --resource-group {rg} --name {vnet}')
         self.cmd('network nsg delete --resource-group {rg} --name {nsg}')
-
 
 
 class NetworkTrafficManagerScenarioTest(ScenarioTest):
