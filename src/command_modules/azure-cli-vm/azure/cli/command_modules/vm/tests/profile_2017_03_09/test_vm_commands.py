@@ -351,34 +351,6 @@ class VMImageWithPlanTest(LiveScenarioTest):
         self.cmd('vm create -g {rg} -n vm1 --no-wait --image {urn}')
 '''
 
-class VMCreateFromUnmanagedDiskTest(ScenarioTest):
-
-    @ResourceGroupPreparer(name_prefix='cli_test_vm_from_unmanaged_disk')
-    def test_vm_create_from_unmanaged_disk(self, resource_group):
-        # create a vm with unmanaged os disk
-        self.kwargs.update({
-            'loc': 'westus',
-            'vm': 'vm1'
-        })
-        self.cmd('vm create -g {rg} -n {vm} --image debian --use-unmanaged-disk --admin-username ubuntu --admin-password testPassword0 --authentication-type password')
-        vm1_info = self.cmd('vm show -g {rg} -n {vm}', checks=[
-            self.check('name', '{vm}'),
-            self.check('licenseType', None)
-        ]).get_output_in_json()
-        self.cmd('vm stop -g {rg} -n {vm}')
-
-        # import the unmanaged os disk into a specialized managed disk
-        self.kwargs.update({
-            'os_disk_vhd_uri': vm1_info['storageProfile']['osDisk']['vhd']['uri'],
-            'vm': 'vm2',
-            'os_disk': 'os1'
-        })
-        self.cmd('unmanaged-disk create -g {rg} -n {os_disk} --source {os_disk_vhd_uri}',
-                 checks=self.check('name', '{os_disk}'))
-        # create a vm by attaching to it
-        self.cmd('vm create -g {rg} -n {vm} --attach-os-disk {os_disk} --os-type linux',
-                 checks=self.check('powerState', 'VM running'))
-
 
 class VMCreateWithSpecializedUnmanagedDiskTest(ScenarioTest):
 
@@ -822,22 +794,18 @@ class VMCreateUbuntuScenarioTest(ScenarioTest):
             'ssh_key': TEST_SSH_KEY_PUB,
             'loc': resource_group_location
         })
-        self.cmd('vm create --resource-group {rg} --admin-username {username} --name {vm} --authentication-type {auth} --image {image} --ssh-key-value \'{ssh_key}\' --location {loc} --data-disk-sizes-gb 1 --data-disk-caching ReadOnly --use-unmanaged-disk')
+        self.cmd('vm create --resource-group {rg} --admin-username {username} --name {vm} --authentication-type {auth} --image {image} --ssh-key-value \'{ssh_key}\' --location {loc} --data-disk-caching ReadOnly --use-unmanaged-disk')
 
         self.cmd('vm show -g {rg} -n {vm}', checks=[
             self.check('provisioningState', 'Succeeded'),
             self.check('osProfile.adminUsername', '{username}'),
             self.check('osProfile.computerName', '{vm}'),
             self.check('osProfile.linuxConfiguration.disablePasswordAuthentication', True),
-            self.check('osProfile.linuxConfiguration.ssh.publicKeys[0].keyData', '{ssh_key}'),
-            self.check('storageProfile.dataDisks[0].managedDisk.storageAccountType', 'Premium_LRS'),
-            self.check('storageProfile.osDisk.managedDisk.storageAccountType', 'Premium_LRS'),
-            self.check('storageProfile.dataDisks[0].lun', 0),
-            self.check('storageProfile.dataDisks[0].caching', 'ReadOnly'),
+            self.check('osProfile.linuxConfiguration.ssh.publicKeys[0].keyData', '{ssh_key}')
         ])
 
         # test for idempotency--no need to reverify, just ensure the command doesn't fail
-        self.cmd('vm create --resource-group {rg} --admin-username {username} --name {vm} --authentication-type {auth} --image {image} --ssh-key-value \'{ssh_key}\' --location {loc} --data-disk-sizes-gb 1 --data-disk-caching ReadOnly --use-unmanaged-disk')
+        self.cmd('vm create --resource-group {rg} --admin-username {username} --name {vm} --authentication-type {auth} --image {image} --ssh-key-value \'{ssh_key}\' --location {loc} --data-disk-caching ReadOnly --use-unmanaged-disk')
 
 
 class VMMultiNicScenarioTest(ScenarioTest):  # pylint: disable=too-many-instance-attributes
@@ -1057,7 +1025,7 @@ class VMCreateExistingOptions(ScenarioTest):
             'ssh_key': TEST_SSH_KEY_PUB
         })
 
-        self.cmd('vm availability-set create --name {availset} -g {rg} --unmanaged --platform-fault-domain-count 3 --platform-update-domain-count 3')
+        self.cmd('vm availability-set create --name {availset} -g {rg} --platform-fault-domain-count 3 --platform-update-domain-count 3')
         self.cmd('network public-ip create --name {pubip} -g {rg}')
         self.cmd('network vnet create --name {vnet} -g {rg} --subnet-name {subnet}')
         self.cmd('network nsg create --name {nsg} -g {rg}')
@@ -1096,7 +1064,7 @@ class VMCreateExistingIdsOptions(ScenarioTest):
             'ssh_key': TEST_SSH_KEY_PUB
         })
 
-        self.cmd('vm availability-set create --name {availset} -g {rg} --unmanaged --platform-fault-domain-count 3 --platform-update-domain-count 3')
+        self.cmd('vm availability-set create --name {availset} -g {rg} --platform-fault-domain-count 3 --platform-update-domain-count 3')
         self.cmd('network public-ip create --name {pubip} -g {rg}')
         self.cmd('network vnet create --name {vnet} -g {rg} --subnet-name {subnet}')
         self.cmd('network nsg create --name {nsg} -g {rg}')
@@ -1141,9 +1109,8 @@ class VMCreateCustomIP(ScenarioTest):
         self.cmd('vm create -n {vm} -g {rg} --image openSUSE-Leap --admin-username user11 --private-ip-address 10.0.0.5 --public-ip-sku {public_ip_sku} --public-ip-address-dns-name {dns} --generate-ssh-keys --use-unmanaged-disk')
 
         self.cmd('network public-ip show -n {vm}PublicIP -g {rg}', checks=[
-            self.check('publicIpAllocationMethod', 'Static'),
-            self.check('dnsSettings.domainNameLabel', '{dns}'),
-            self.check('sku.name', '{public_ip_sku}')
+            self.check('publicIpAllocationMethod', 'Dynamic'),
+            self.check('dnsSettings.domainNameLabel', '{dns}')
         ])
         self.cmd('network nic show -n {vm}VMNic -g {rg}',
                  checks=self.check('ipConfigurations[0].privateIpAllocationMethod', 'Static'))
@@ -1151,8 +1118,7 @@ class VMCreateCustomIP(ScenarioTest):
         # verify the default should be "Basic" sku with "Dynamic" allocation method
         self.cmd('vm create -n {vm2} -g {rg} --image openSUSE-Leap --admin-username user11 --generate-ssh-keys --use-unmanaged-disk')
         self.cmd('network public-ip show -n {vm2}PublicIP -g {rg}', checks=[
-            self.check('publicIpAllocationMethod', 'Dynamic'),
-            self.check('sku.name', 'Basic')
+            self.check('publicIpAllocationMethod', 'Dynamic')
         ])
 
 
