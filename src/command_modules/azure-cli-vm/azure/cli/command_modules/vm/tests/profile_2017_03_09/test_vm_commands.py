@@ -188,14 +188,6 @@ class VMImageListSkusScenarioTest(ScenarioTest):
         result = self.cmd("vm image list-skus --location {loc} -p {pub} --offer {offer} --query \"length([].id.contains(@, '/Publishers/{pub}/ArtifactTypes/VMImage/Offers/{offer}/Skus/'))\"").get_output_in_json()
         self.assertTrue(result > 0)
 
-    @AllowLargeResponse(size_kb=2048)
-    def test_list_skus_contains_zone_info(self):
-        # we pick eastus2 as it is one of 3 regions so far with zone support
-        self.kwargs['loc'] = 'eastus2'
-        result = self.cmd('vm list-skus -otable -l {loc} -otable')
-        columns = next(l for l in result.output.splitlines() if '1,2,3' in l).split()
-        self.assertEqual(columns[3], '1,2,3')
-
 
 class VMImageShowScenarioTest(ScenarioTest):
 
@@ -2054,8 +2046,6 @@ class VMRunCommandScenarioTest(ScenarioTest):
             'loc': resource_group_location
         })
 
-        self.cmd('vm run-command list -l {loc}')
-        self.cmd('vm run-command show --command-id RunShellScript -l {loc}')
         public_ip = self.cmd('vm create -g {rg} -n {vm} --image ubuntults --admin-username clitest1 --admin-password Test12345678!! --use-unmanaged-disk').get_output_in_json()['publicIpAddress']
 
         self.cmd('vm open-port -g {rg} -n {vm} --port 80')
@@ -2279,60 +2269,6 @@ class VMSecretTest(ScenarioTest):
         self.cmd('vm secret list -g {rg} -n {vm}',
                  checks=self.check('length([])', 0))
 
-
-class VMOsDiskSwap(ScenarioTest):
-    @ResourceGroupPreparer()
-    def test_vm_os_disk_swap(self, resource_group):
-        self.kwargs.update({
-            'vm': 'vm1',
-            'backupDisk': 'disk1',
-        })
-        self.cmd('vm create -g {rg} -n {vm} --image centos --admin-username clitest123 --generate-ssh-keys --use-unmanaged-disk')
-        res = self.cmd('vm show -g {rg} -n {vm}').get_output_in_json()
-        original_disk_id = res['storageProfile']['osDisk']['unmanagedDisk']['id']
-        backup_disk_id = self.cmd('disk create -g {{rg}} -n {{backupDisk}} --source {}'.format(original_disk_id)).get_output_in_json()['id']
-
-        self.cmd('vm stop -g {rg} -n {vm}')
-        self.cmd('vm update -g {{rg}} -n {{vm}} --os-disk {}'.format(backup_disk_id))
-        self.cmd('vm show -g {rg} -n {vm}', checks=[
-            self.check('storageProfile.osDisk.unmanagedDisk.id', backup_disk_id),
-            self.check('storageProfile.osDisk.name', self.kwargs['backupDisk'])
-        ])
-
-
-class VMGenericUpdate(ScenarioTest):
-    @ResourceGroupPreparer()
-    def test_vm_generic_update(self, resource_group):
-        self.kwargs.update({
-            'vm': 'vm1',
-            'id': 'id',
-            'id2': 'id2'
-        })
-
-        self.cmd('identity create -g {rg} -n {id}')
-        result = self.cmd('identity create -g {rg} -n {id2}').get_output_in_json()
-        id_path = result['id'].rsplit('/', 1)[0]
-        self.cmd('vm create -g {rg} -n {vm} --image debian --data-disk-sizes-gb 1 2 --admin-username cligenerics --generate-ssh-keys --use-unmanaged-disk')
-        self.cmd('vm identity assign -g {rg} -n {vm} --identities {id} {id2}', checks=[
-            self.check('systemAssignedIdentity', ''),
-            self.check('length(userAssignedIdentities)', 2)
-        ])
-
-        # we will try all kinds of generic updates we can
-        self.cmd('vm update -g {rg} -n {vm} --set identity.type="SystemAssigned, UserAssigned"', checks=[
-            self.check('identity.type', 'SystemAssigned, UserAssigned')
-        ])
-
-        left = self.cmd('vm update -g {rg} -n {vm} --remove identity.identityIds 1', checks=[
-            self.check('length(identity.identityIds)', 1)
-        ]).get_output_in_json()['identity']['identityIds'][0].rsplit('/', 1)[-1]
-        removed = id_path + '/' + ('id2' if left == 'id' else 'id')
-        self.cmd('vm update -g {rg} -n {vm} --add identity.identityIds ' + removed, checks=[
-            self.check('length(identity.identityIds)', 2)
-        ])
-        self.cmd('vm update -g {rg} -n {vm} --remove storageProfile.dataDisks', checks=[
-            self.check('storageProfile.dataDisks', [])
-        ])
 
 # endregion
 
