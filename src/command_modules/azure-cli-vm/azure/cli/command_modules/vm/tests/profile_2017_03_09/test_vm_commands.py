@@ -247,9 +247,6 @@ class VMVMSSWindowsLicenseTest(ScenarioTest):
         self.cmd('vmss show -g {rg} -n {vmss}', checks=[
             self.check('virtualMachineProfile.licenseType', 'Windows_Server')
         ])
-        self.cmd('vmss update -g {rg} -n {vmss} --license-type None', checks=[
-            self.check('virtualMachineProfile.licenseType', 'None')
-        ])
 
 
 class VMCreateWithSpecializedUnmanagedDiskTest(ScenarioTest):
@@ -1040,50 +1037,6 @@ class VMSSCreateAndModify(ScenarioTest):
         self.cmd('vmss list --resource-group {rg}', checks=self.is_empty())
 
 
-class VMSSCreateOptions(ScenarioTest):
-
-    @ResourceGroupPreparer(name_prefix='cli_test_vmss_create_options')
-    def test_vmss_create_options(self, resource_group):
-
-        self.kwargs.update({
-            'vmss': 'vrfvmss',
-            'count': 2,
-            'caching': 'ReadWrite',
-            'update': 'automatic',
-            'ip': 'vrfpubip'
-        })
-
-        self.cmd('network public-ip create --name {ip} -g {rg}')
-
-        self.cmd('vmss create --image Debian --admin-password testPassword0 -l westus -g {rg} -n {vmss} --disable-overprovision --instance-count {count} --os-disk-caching {caching} --upgrade-policy-mode {update} --authentication-type password --admin-username myadmin --public-ip-address {ip} --data-disk-sizes-gb 1 --vm-sku Standard_D2_v2 --use-unmanaged-disk')
-        self.cmd('network lb show -g {rg} -n {vmss}lb ',
-                 checks=self.check('frontendIpConfigurations[0].publicIpAddress.id.ends_with(@, \'{ip}\')', True))
-        self.cmd('vmss show -g {rg} -n {vmss}', checks=[
-            self.check('sku.capacity', '{count}'),
-            self.check('virtualMachineProfile.storageProfile.osDisk.caching', '{caching}'),
-            self.check('upgradePolicy.mode', self.kwargs['update'].title()),
-            self.check('singlePlacementGroup', True),
-        ])
-        self.kwargs['id'] = self.cmd('vmss list-instances -g {rg} -n {vmss} --query "[].instanceId"').get_output_in_json()[0]
-        self.cmd('vmss show -g {rg} -n {vmss} --instance-id {id}',
-                 checks=self.check('instanceId', '{id}'))
-
-        self.cmd('vmss unmanaged-disk attach -g {rg} -n {vmss} --size-gb 3')
-        self.cmd('vmss show -g {rg} -n {vmss}', checks=[
-            self.check('length(virtualMachineProfile.storageProfile.dataDisks)', 2),
-            self.check('virtualMachineProfile.storageProfile.dataDisks[0].diskSizeGb', 1),
-            self.check('virtualMachineProfile.storageProfile.dataDisks[0].managedDisk.storageAccountType', 'Standard_LRS'),
-            self.check('virtualMachineProfile.storageProfile.dataDisks[1].diskSizeGb', 3),
-            self.check('virtualMachineProfile.storageProfile.dataDisks[1].managedDisk.storageAccountType', 'Standard_LRS'),
-        ])
-        self.cmd('vmss unmanaged-disk detach -g {rg} -n {vmss} --lun 1')
-        self.cmd('vmss show -g {rg} -n {vmss}', checks=[
-            self.check('length(virtualMachineProfile.storageProfile.dataDisks)', 1),
-            self.check('virtualMachineProfile.storageProfile.dataDisks[0].lun', 0),
-            self.check('virtualMachineProfile.storageProfile.dataDisks[0].diskSizeGb', 1)
-        ])
-
-
 class VMSSCreateBalancerOptionsTest(ScenarioTest):  # pylint: disable=too-many-instance-attributes
 
     @ResourceGroupPreparer(name_prefix='cli_test_vmss_create_none')
@@ -1138,49 +1091,6 @@ class VMSSCreateBalancerOptionsTest(ScenarioTest):  # pylint: disable=too-many-i
         })
         self.cmd('network lb create -g {rg} -n {lb} --backend-pool-name test')
         self.cmd('vmss create -g {rg} -n {vmss} --load-balancer {lb} --image UbuntuLTS --admin-username clitester --admin-password TestTest12#$ --use-unmanaged-disk')
-
-    @ResourceGroupPreparer()
-    def test_vmss_single_placement_group_default_to_std_lb(self, resource_group):
-        self.kwargs.update({
-            'vmss': 'vmss123'
-        })
-        self.cmd('vmss create -g {rg} -n {vmss} --admin-username clitester --admin-password PasswordPassword1! --image debian --single-placement-group false --use-unmanaged-disk')
-        self.cmd('vmss show -g {rg} -n {vmss}', checks=[
-            self.check('singlePlacementGroup', False)
-        ])
-
-        self.cmd('network lb list -g {rg}', checks=[
-            self.check('[0].sku.name', 'Standard')
-        ])
-        self.cmd('network public-ip list -g {rg}', checks=[
-            self.check('[0].sku.name', 'Standard')
-        ])
-
-
-class VMSSCreatePublicIpPerVm(ScenarioTest):  # pylint: disable=too-many-instance-attributes
-
-    @ResourceGroupPreparer(name_prefix='cli_test_vmss_create_w_ips')
-    def test_vmss_public_ip_per_vm_custom_domain_name(self, resource_group):
-
-        self.kwargs.update({
-            'vmss': 'vmss1',
-            'nsg': 'testnsg',
-            'ssh_key': TEST_SSH_KEY_PUB,
-            'dns_label': self.create_random_name('clivmss', 20)
-        })
-        nsg_result = self.cmd('network nsg create -g {rg} -n {nsg}').get_output_in_json()
-        self.cmd("vmss create -n {vmss} -g {rg} --image Debian --admin-username clittester --ssh-key-value '{ssh_key}' --vm-domain-name {dns_label} --public-ip-per-vm --dns-servers 10.0.0.6 10.0.0.5 --nsg {nsg} --use-unmanaged-disk",
-                 checks=self.check('vmss.provisioningState', 'Succeeded'))
-        result = self.cmd("vmss show -n {vmss} -g {rg}", checks=[
-            self.check('length(virtualMachineProfile.networkProfile.networkInterfaceConfigurations[0].dnsSettings.dnsServers)', 2),
-            self.check('virtualMachineProfile.networkProfile.networkInterfaceConfigurations[0].dnsSettings.dnsServers[0]', '10.0.0.6'),
-            self.check('virtualMachineProfile.networkProfile.networkInterfaceConfigurations[0].dnsSettings.dnsServers[1]', '10.0.0.5'),
-            self.check('virtualMachineProfile.networkProfile.networkInterfaceConfigurations[0].networkSecurityGroup.id', nsg_result['NewNSG']['id'])
-        ])
-        # spot check we have the domain name and have a public ip
-        result = self.cmd('vmss list-instance-public-ips -n {vmss} -g {rg}').get_output_in_json()
-        self.assertEqual(len(result[0]['ipAddress'].split('.')), 4)
-        self.assertTrue(result[0]['dnsSettings']['domainNameLabel'].endswith(self.kwargs['dns_label']))
 
 
 class SecretsScenarioTest(ScenarioTest):  # pylint: disable=too-many-instance-attributes
@@ -1492,39 +1402,6 @@ class VMSSILBTest(ScenarioTest):
         # self.assertTrue('internal load balancer' in str(err.exception))
 
 
-@api_version_constraint(ResourceType.MGMT_NETWORK, min_api='2017-08-01')
-class VMSSLoadBalancerWithSku(ScenarioTest):
-
-    @ResourceGroupPreparer(name_prefix='cli_test_vmss_lb_sku')
-    def test_vmss_lb_sku(self, resource_group):
-
-        self.kwargs.update({
-            'vmss0': 'vmss0',
-            'vmss': 'vmss1',
-            'lb': 'lb1',
-            'ip': 'pubip1',
-            'sku': 'standard',
-            'loc': 'eastus2'
-        })
-
-        # default to Basic
-        self.cmd('vmss create -g {rg} -l {loc} -n {vmss0} --image UbuntuLTS --admin-username admin123 --admin-password PasswordPassword1! --use-unmanaged-disk')
-        self.cmd('network lb list -g {rg}', checks=self.check('[0].sku.name', 'Basic'))
-        self.cmd('network public-ip list -g {rg}', checks=[
-            self.check('[0].sku.name', 'Basic'),
-            self.check('[0].publicIpAllocationMethod', 'Dynamic')
-        ])
-
-        # but you can overrides the defaults
-        self.cmd('vmss create -g {rg} -l {loc} -n {vmss} --lb {lb} --lb-sku {sku} --public-ip-address {ip} --image UbuntuLTS --admin-username admin123 --admin-password PasswordPassword1! --use-unmanaged-disk')
-        self.cmd('network lb show -g {rg} -n {lb}',
-                 checks=self.check('sku.name', 'Standard'))
-        self.cmd('network public-ip show -g {rg} -n {ip}', checks=[
-            self.check('sku.name', 'Standard'),
-            self.check('publicIpAllocationMethod', 'Static')
-        ])
-
-
 class MSIScenarioTest(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_vm_msi')
@@ -1656,53 +1533,6 @@ class VMLiveScenarioTest(LiveScenarioTest):
         self.assertTrue('Succeeded:'.format(**self.kwargs) in lines)
 
 
-class VMRunCommandScenarioTest(ScenarioTest):
-
-    @ResourceGroupPreparer(name_prefix='cli_test_vm_run_command')
-    def test_run_command_e2e(self, resource_group, resource_group_location):
-
-        self.kwargs.update({
-            'vm': 'test-run-command-vm',
-            'loc': resource_group_location
-        })
-
-        public_ip = self.cmd('vm create -g {rg} -n {vm} --image ubuntults --admin-username clitest1 --admin-password Test12345678!! --use-unmanaged-disk').get_output_in_json()['publicIpAddress']
-
-        self.cmd('vm open-port -g {rg} -n {vm} --port 80')
-        self.cmd('vm run-command invoke -g {rg} -n{vm} --command-id RunShellScript --script "sudo apt-get update && sudo apt-get install -y nginx"')
-        time.sleep(15)  # 15 seconds should be enough for nginx started(Skipped under playback mode)
-        import requests
-        r = requests.get('http://' + public_ip)
-        self.assertTrue('Welcome to nginx' in str(r.content))
-
-    @ResourceGroupPreparer(name_prefix='cli_test_vm_run_command_w_params')
-    def test_run_command_with_parameters(self, resource_group):
-        self.kwargs.update({'vm': 'test-run-command-vm2'})
-        self.cmd('vm create -g {rg} -n {vm} --image debian --admin-username clitest1 --admin-password Test12345678!! --use-unmanaged-disk')
-        self.cmd('vm run-command invoke -g {rg} -n{vm} --command-id RunShellScript  --scripts "echo $0 $1" --parameters hello world')
-
-
-class VMSSPriorityTesting(ScenarioTest):
-    @ResourceGroupPreparer(name_prefix='vmss_low_pri', location='CentralUS')
-    def test_vmss_create_with_low_priority(self, resource_group, resource_group_location):
-        self.kwargs.update({
-            'priority': 'Low',
-            'vmss': 'vmss1',
-            'vmss2': 'vmss2'
-        })
-        self.cmd('vmss create -g {rg} -n {vmss} --admin-username clitester --admin-password PasswordPassword1! --image debian --priority {priority} --use-unmanaged-disk')
-        self.cmd('vmss show -g {rg} -n {vmss}', checks=[
-            self.check('virtualMachineProfile.priority', '{priority}'),
-            self.check('virtualMachineProfile.evictionPolicy', 'Deallocate')
-        ])
-
-        self.cmd('vmss create -g {rg} -n {vmss2} --admin-username clitester --admin-password PasswordPassword1! --image centos --priority {priority} --eviction-policy delete --use-unmanaged-disk')
-        self.cmd('vmss show -g {rg} -n {vmss2}', checks=[
-            self.check('virtualMachineProfile.priority', '{priority}'),
-            self.check('virtualMachineProfile.evictionPolicy', 'Delete')
-        ])
-
-
 # convert to ScenarioTest and re-record when issue #6006 is fixed
 class VMLBIntegrationTesting(ScenarioTest):
 
@@ -1738,33 +1568,6 @@ class VMLBIntegrationTesting(ScenarioTest):
         self.cmd('network nic ip-config inbound-nat-rule add -g {rg} --lb-name {lb} --nic-name {vm1}VMNic --ip-config-name ipconfig{vm1} --inbound-nat-rule inbound-nat-rule1')
         self.cmd('network lb inbound-nat-rule create -g {rg} --lb-name {lb} -n inbound-nat-rule2 --frontend-port 50001 --backend-port 22  --protocol Tcp')
         self.cmd('network nic ip-config inbound-nat-rule add -g {rg} --lb-name {lb} --nic-name {vm2}VMNic --ip-config-name ipconfig{vm2} --inbound-nat-rule inbound-nat-rule2')
-
-        # install nginx web servers
-        self.cmd('vm run-command invoke -g {rg} -n {vm1} --command-id RunShellScript --scripts "sudo apt-get install -y nginx"')
-        self.cmd('vm run-command invoke -g {rg} -n {vm2} --command-id RunShellScript --scripts "sudo apt-get install -y nginx"')
-
-        # ensure all pieces are working together
-        result = self.cmd('network public-ip show -g {rg} -n PublicIP{lb}').get_output_in_json()
-        pip = result['ipAddress']
-        time.sleep(15)  # 15 seconds should be enough for nginx started(Skipped under playback mode)
-        import requests
-        r = requests.get('http://' + pip)
-        self.assertTrue('Welcome to nginx' in str(r.content))
-
-
-class VMCreateWithExistingNic(ScenarioTest):
-
-    @ResourceGroupPreparer(name_prefix='cli_test_create_vm_existing_nic')
-    def test_vm_create_existing_nic(self, resource_group):
-        import re
-        self.cmd('network public-ip create -g {rg} -n my-pip')
-        self.cmd('network vnet create -g {rg} -n my-vnet --subnet-name my-subnet1')
-        self.cmd('network nic create -g {rg} -n my-nic --subnet my-subnet1 --vnet-name my-vnet --public-ip-address my-pip')
-        self.cmd('network nic ip-config create -n my-ipconfig2 -g {rg} --nic-name my-nic --private-ip-address-version IPv6')
-        self.cmd('vm create -g {rg} -n vm1 --image ubuntults --nics my-nic --generate-ssh-keys --admin-username ubuntuadmin --use-unmanaged-disk')
-        result = self.cmd('vm show -g {rg} -n vm1 -d').get_output_in_json()
-        self.assertTrue(re.match(r'[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+', result['publicIps']))
-        self.assertTrue(re.match(r'[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+', result['privateIps']))
 
 
 class VMSecretTest(ScenarioTest):
