@@ -42,6 +42,7 @@ class ResourceType(Enum):  # pylint: disable=too-few-public-methods
     MGMT_RESOURCE_LINKS = ('azure.mgmt.resource.links', 'ManagementLinkClient')
     MGMT_RESOURCE_LOCKS = ('azure.mgmt.resource.locks', 'ManagementLockClient')
     MGMT_RESOURCE_POLICY = ('azure.mgmt.resource.policy', 'PolicyClient')
+    MGMT_KEYVAULT = ('azure.mgmt.keyvault', 'KeyVaultManagementClient')
     MGMT_RESOURCE_RESOURCES = ('azure.mgmt.resource.resources', 'ResourceManagementClient')
     MGMT_RESOURCE_SUBSCRIPTIONS = ('azure.mgmt.resource.subscriptions', 'SubscriptionClient')
     DATA_KEYVAULT = ('azure.keyvault', 'KeyVaultClient')
@@ -115,6 +116,18 @@ AZURE_API_PROFILES = {
             'classic_administrators': '2015-06-01'
         }),
         ResourceType.DATA_STORAGE: '2015-04-05'
+    },
+    '2018-03-01-hybrid': {
+        ResourceType.MGMT_STORAGE: '2016-01-01',
+        ResourceType.MGMT_NETWORK: '2017-10-01',
+        ResourceType.MGMT_COMPUTE: SDKProfile('2017-03-30'),
+        ResourceType.MGMT_RESOURCE_LINKS: '2018-02-01',
+        ResourceType.MGMT_RESOURCE_LOCKS: '2016-09-01',
+        ResourceType.MGMT_RESOURCE_POLICY: '2016-12-01',
+        ResourceType.MGMT_RESOURCE_RESOURCES: '2018-02-01',
+        ResourceType.MGMT_RESOURCE_SUBSCRIPTIONS: '2016-06-01',
+        ResourceType.MGMT_KEYVAULT: '2016-10-01',
+        ResourceType.DATA_STORAGE: '2017-04-17'
     }
 }
 
