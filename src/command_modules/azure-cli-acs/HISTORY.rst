@@ -3,6 +3,13 @@
 Release History
 ===============
 
+2.0.34
+++++++
+* `az aks get-credentials` creates the kube config file with more secure filesystem permissions
+* make --connector-name optional for `aks install-connector`, `aks upgrade-connector` and `aks remove-connector`
+* add 2 new Azure Container Instance regions for `aks install-connector`
+* `aks install-connector` add the normalized location into the helm release name and node name
+
 2.0.33
 ++++++
 * add new Dev-Spaces commands: `az aks use-dev-spaces` and `az aks remove-dev-spaces`

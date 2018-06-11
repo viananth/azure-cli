@@ -488,8 +488,8 @@ def capture_vm(cmd, resource_group_name, vm_name, vhd_name_prefix,
 # pylint: disable=too-many-locals, unused-argument, too-many-statements, too-many-branches
 def create_vm(cmd, vm_name, resource_group_name, image=None, size='Standard_DS1_v2', location=None, tags=None,
               no_wait=False, authentication_type=None, admin_password=None,
-              admin_username=getpass.getuser(), ssh_dest_key_path=None, ssh_key_value=None,
-              generate_ssh_keys=False, availability_set=None, nics=None, nsg=None, nsg_rule=None,
+              admin_username=getpass.getuser(), ssh_dest_key_path=None, ssh_key_value=None, generate_ssh_keys=False,
+              availability_set=None, nics=None, nsg=None, nsg_rule=None, accelerated_networking=None,
               private_ip_address=None, public_ip_address=None, public_ip_address_allocation='dynamic',
               public_ip_address_dns_name=None, public_ip_sku=None, os_disk_name=None, os_type=None,
               storage_account=None, os_caching=None, data_caching=None, storage_container_name=None, storage_sku=None,
@@ -583,7 +583,7 @@ def create_vm(cmd, vm_name, resource_group_name, image=None, size='Standard_DS1_
         ]
         nic_resource = build_nic_resource(
             cmd, nic_name, location, tags, vm_name, subnet_id, private_ip_address, nsg_id,
-            public_ip_address_id, application_security_groups)
+            public_ip_address_id, application_security_groups, accelerated_networking=accelerated_networking)
         nic_resource['dependsOn'] = nic_dependencies
         master_template.add_resource(nic_resource)
     else:
@@ -1186,10 +1186,8 @@ def list_extensions(cmd, resource_group_name, vm_name):
     return result
 
 
-def set_extension(
-        cmd, resource_group_name, vm_name, vm_extension_name, publisher,
-        version=None, settings=None,
-        protected_settings=None, no_auto_upgrade=False):
+def set_extension(cmd, resource_group_name, vm_name, vm_extension_name, publisher,
+                  version=None, settings=None, protected_settings=None, no_auto_upgrade=False, force_update=False):
     vm = get_vm(cmd, resource_group_name, vm_name, 'instanceView')
     client = _compute_client_factory(cmd.cli_ctx)
 
@@ -1203,6 +1201,8 @@ def set_extension(
                                   type_handler_version=version,
                                   settings=settings,
                                   auto_upgrade_minor_version=(not no_auto_upgrade))
+    if force_update:
+        ext.force_update_tag = str(_gen_guid())
     return client.virtual_machine_extensions.create_or_update(resource_group_name, vm_name, instance_name, ext)
 # endregion
 
@@ -1733,7 +1733,6 @@ def assign_vmss_identity(cmd, resource_group_name, vmss_name, assign_identity=No
             vmss.identity.identity_ids = external_identities
         if vmss_patch:
             vmss_patch.identity = vmss.identity
-            vmss_patch.sku = vmss.sku  # workaround https://github.com/Azure/azure-cli/issues/6262
             poller = client.virtual_machine_scale_sets.update(resource_group_name, vmss_name, vmss_patch)
         else:
             poller = client.virtual_machine_scale_sets.create_or_update(resource_group_name, vmss_name, vmss)
@@ -1761,7 +1760,7 @@ def create_vmss(cmd, vmss_name, resource_group_name, image,
                 app_gateway_sku='Standard_Large', app_gateway_capacity=10,
                 backend_pool_name=None, nat_pool_name=None, backend_port=None, health_probe=None,
                 public_ip_address=None, public_ip_address_allocation=None,
-                public_ip_address_dns_name=None, accelerated_networking=False,
+                public_ip_address_dns_name=None, accelerated_networking=None,
                 public_ip_per_vm=False, vm_domain_name=None, dns_servers=None, nsg=None,
                 os_caching=None, data_caching=None,
                 storage_container_name='vhds', storage_sku=None,
@@ -2348,10 +2347,8 @@ def list_vmss_extensions(cmd, resource_group_name, vmss_name):
         else vmss.virtual_machine_profile.extension_profile.extensions
 
 
-def set_vmss_extension(
-        cmd, resource_group_name, vmss_name, extension_name, publisher,
-        version=None, settings=None,
-        protected_settings=None, no_auto_upgrade=False):
+def set_vmss_extension(cmd, resource_group_name, vmss_name, extension_name, publisher, version=None,
+                       settings=None, protected_settings=None, no_auto_upgrade=False, force_update=False):
     client = _compute_client_factory(cmd.cli_ctx)
     vmss = client.virtual_machine_scale_sets.get(resource_group_name, vmss_name)
     VirtualMachineScaleSetExtension, VirtualMachineScaleSetExtensionProfile = cmd.get_models(
@@ -2373,6 +2370,8 @@ def set_vmss_extension(
                                           type_handler_version=version,
                                           settings=settings,
                                           auto_upgrade_minor_version=(not no_auto_upgrade))
+    if force_update:
+        ext.force_update_tag = str(_gen_guid())
 
     if not vmss.virtual_machine_profile.extension_profile:
         vmss.virtual_machine_profile.extension_profile = VirtualMachineScaleSetExtensionProfile(extensions=[])
