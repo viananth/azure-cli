@@ -129,7 +129,8 @@ AZURE_API_PROFILES = {
         #ResourceType.MGMT_RESOURCE_RESOURCES: '2017-05-10',
         ResourceType.MGMT_RESOURCE_SUBSCRIPTIONS: '2016-06-01',
         ResourceType.MGMT_KEYVAULT: '2016-10-01',
-        ResourceType.DATA_STORAGE: '2017-04-17'
+        ResourceType.DATA_STORAGE: '2017-04-17',
+        ResourceType.DATA_COSMOS_TABLE: '2017-04-17'
     }
 }
 
