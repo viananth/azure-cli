@@ -450,12 +450,16 @@ def assign_vm_identity(cmd, resource_group_name, vm_name, assign_identity=None, 
             for identity in external_identities:
                 vm.identity.user_assigned_identities[identity] = VirtualMachineIdentityUserAssignedIdentitiesValue()
 
-        vm_patch = VirtualMachineUpdate()
-        vm_patch.identity = vm.identity
-        return patch_vm(cmd, resource_group_name, vm_name, vm_patch)
+        if VirtualMachineUpdate:
+            vm_patch = VirtualMachineUpdate()
+            vm_patch.identity = vm.identity
+            return patch_vm(cmd, resource_group_name, vm_name, vm_patch)
+        return set_vm(cmd, vm)
 
     assign_identity_helper(cmd.cli_ctx, getter, setter, identity_role=identity_role_id, identity_scope=identity_scope)
     vm = client.virtual_machines.get(resource_group_name, vm_name)
+    if not hasattr(vm.identity, 'user_assigned_identities'):
+        vm.identity.user_assigned_identities = None
     return _construct_identity_info(identity_scope, identity_role, vm.identity.principal_id,
                                     vm.identity.user_assigned_identities)
 
@@ -665,6 +669,8 @@ def create_vm(cmd, vm_name, resource_group_name, image=None, size='Standard_DS1_
     if assign_identity is not None:
         if enable_local_identity and not identity_scope:
             _show_missing_access_warning(resource_group_name, vm_name, 'vm')
+        if not hasattr(vm.identity, 'user_assigned_identities'):
+            vm.identity.user_assigned_identities = None
         setattr(vm, 'identity', _construct_identity_info(identity_scope, identity_role, vm.identity.principal_id,
                                                          vm.identity.user_assigned_identities))
     return vm
@@ -1760,9 +1766,12 @@ def assign_vmss_identity(cmd, resource_group_name, vmss_name, assign_identity=No
             vmss.identity.user_assigned_identities = {}
             for identity in external_identities:
                 vmss.identity.user_assigned_identities[identity] = IdentityUserAssignedIdentitiesValue()
-        vmss_patch = VirtualMachineScaleSetUpdate()
-        vmss_patch.identity = vmss.identity
-        poller = client.virtual_machine_scale_sets.update(resource_group_name, vmss_name, vmss_patch)
+        if VirtualMachineScaleSetUpdate:
+            vmss_patch = VirtualMachineScaleSetUpdate()
+            vmss_patch.identity = vmss.identity
+            poller = client.virtual_machine_scale_sets.update(resource_group_name, vmss_name, vmss_patch)
+        else:
+            poller = client.virtual_machine_scale_sets.create_or_update(resource_group_name, vmss_name, vmss)
         return LongRunningOperation(cmd.cli_ctx)(poller)
 
     assign_identity_helper(cmd.cli_ctx, getter, setter, identity_role=identity_role_id, identity_scope=identity_scope)
@@ -1771,6 +1780,8 @@ def assign_vmss_identity(cmd, resource_group_name, vmss_name, assign_identity=No
         logger.warning("With manual upgrade mode, you will need to run 'az vmss update-instances -g %s -n %s "
                        "--instance-ids *' to propagate the change", resource_group_name, vmss_name)
 
+    if not hasattr(vmss.identity, 'user_assigned_identities'):
+        vmss.identity.user_assigned_identities = None
     return _construct_identity_info(identity_scope, identity_role, vmss.identity.principal_id,
                                     vmss.identity.user_assigned_identities)
 
@@ -2050,6 +2061,8 @@ def create_vmss(cmd, vmss_name, resource_group_name, image,
         vmss_info = get_vmss(cmd, resource_group_name, vmss_name)
         if enable_local_identity and not identity_scope:
             _show_missing_access_warning(resource_group_name, vmss_name, 'vmss')
+        if not hasattr(vmss_info.identity, 'user_assigned_identities'):
+            vmss_info.identity.user_assigned_identities = None
         deployment_result['vmss']['identity'] = _construct_identity_info(identity_scope, identity_role,
                                                                          vmss_info.identity.principal_id,
                                                                          vmss_info.identity.user_assigned_identities)

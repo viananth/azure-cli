@@ -989,6 +989,7 @@ def _find_property(instance, path):
 def assign_identity(cli_ctx, getter, setter, identity_role=None, identity_scope=None):
     import time
     from msrestazure.azure_exceptions import CloudError
+    from azure.cli.core.profiles import get_api_version
 
     # get
     resource = getter()
@@ -997,21 +998,31 @@ def assign_identity(cli_ctx, getter, setter, identity_role=None, identity_scope=
     # create role assignment:
     if identity_scope:
         principal_id = resource.identity.principal_id
+        version = getattr(get_api_version(cli_ctx, ResourceType.MGMT_AUTHORIZATION), 'role_assignments')
 
         identity_role_id = resolve_role_id(cli_ctx, identity_role, identity_scope)
-        assignments_client = get_mgmt_service_client(cli_ctx, ResourceType.MGMT_AUTHORIZATION).role_assignments
-        RoleAssignmentCreateParameters = get_sdk(cli_ctx, ResourceType.MGMT_AUTHORIZATION,
-                                                 'RoleAssignmentCreateParameters', mod='models',
-                                                 operation_group='role_assignments')
+        RoleAssignmentCreateParameters, RoleAssignmentProperties = get_sdk(cli_ctx, ResourceType.MGMT_AUTHORIZATION,
+                                                                           'RoleAssignmentCreateParameters',
+                                                                           'RoleAssignmentProperties', mod='models',
+                                                                           operation_group='role_assignments')
+
         parameters = RoleAssignmentCreateParameters(role_definition_id=identity_role_id, principal_id=principal_id)
+        assignments_client = get_mgmt_service_client(cli_ctx, ResourceType.MGMT_AUTHORIZATION).role_assignments
 
         logger.info("Creating an assignment with a role '%s' on the scope of '%s'", identity_role_id, identity_scope)
         retry_times = 36
         assignment_name = _gen_guid()
         for l in range(0, retry_times):
             try:
-                assignments_client.create(scope=identity_scope, role_assignment_name=assignment_name,
-                                          parameters=parameters)
+                if version == '2015-07-01':
+                    properties = RoleAssignmentProperties(role_definition_id=identity_role_id, 
+                                                          principal_id=principal_id)
+                    assignments_client = assignments_client.create(scope=identity_scope, 
+                                                                   role_assignment_name=assignment_name,
+                                                                   properties=properties)
+                else:
+                    assignments_client.create(scope=identity_scope, role_assignment_name=assignment_name,
+                                              parameters=parameters)
                 break
             except CloudError as ex:
                 if 'role assignment already exists' in ex.message:
