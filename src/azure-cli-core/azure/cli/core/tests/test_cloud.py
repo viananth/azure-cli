@@ -101,7 +101,7 @@ class TestCloud(unittest.TestCase):
             self.assertEqual(custom_clouds[0].profile, c.profile)
 
 def test_add_get_cloud_with_hybrid_profile(self):
-        cli = TestCli()
+        cli = DummyCli()
         endpoint_rm = 'http://management.contoso.com'
         endpoints = CloudEndpoints(resource_manager=endpoint_rm)
         profile = '2018-03-01-hybrid'
