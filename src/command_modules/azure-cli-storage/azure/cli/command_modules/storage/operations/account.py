@@ -78,6 +78,9 @@ def show_storage_account_usage(cmd, location):
     scf = storage_client_factory(cmd.cli_ctx)
     return next((x for x in scf.usages.list_by_location(location) if x.name.value == 'StorageAccounts'), None)  # pylint: disable=no-member
 
+def show_storage_account_usage_no_location(cmd):
+    scf = storage_client_factory(cmd.cli_ctx)
+    return next((x for x in scf.usage.list() if x.name.value == 'StorageAccounts'), None)  # pylint: disable=no-member
 
 # pylint: disable=too-many-locals
 def update_storage_account(cmd, instance, sku=None, tags=None, custom_domain=None, use_subdomain=None,
