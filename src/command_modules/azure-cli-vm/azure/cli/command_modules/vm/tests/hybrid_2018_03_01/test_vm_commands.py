@@ -743,6 +743,30 @@ class VMAvailSetLiveScenarioTest(ScenarioTest):
         ])
 
 
+class ComputeListSkusScenarioTest(ScenarioTest):
+    
+    @AllowLargeResponse(size_kb=3072)
+    def test_list_compute_skus_table_output(self):
+        result = self.cmd('vm list-skus -l eastus2 -otable')
+        lines = result.output.split('\n')
+        # 1st line is header
+        self.assertEqual(lines[0].split(), ['ResourceType', 'Locations', 'Name', 'Zones', 'Capabilities', 'Tier', 'Size', 'Restrictions'])
+        # spot check the first 4 entries
+        fd_found, ud_found, size_found = False, False, False
+        for l in lines[2:]:
+            parts = l.split()
+            if not fd_found and (parts[:5] == ['availabilitySets', 'eastus2', 'Aligned', 'None', 'MaximumPlatformFaultDomainCount=3']):
+                fd_found = True
+            elif not ud_found and (parts[:5] == ['availabilitySets', 'eastus2', 'Classic', 'None', 'MaximumPlatformFaultDomainCount=3']):
+                ud_found = True
+            elif not size_found and parts[:3] == ['virtualMachines', 'eastus2', 'Standard_DS1_v2']:
+                size_found = True
+
+        self.assertTrue(fd_found)
+        self.assertTrue(ud_found)
+        self.assertTrue(size_found)
+
+
 class VMExtensionScenarioTest(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_vm_extension')
