@@ -743,30 +743,6 @@ class VMAvailSetLiveScenarioTest(ScenarioTest):
         ])
 
 
-class ComputeListSkusScenarioTest(ScenarioTest):
-
-    @AllowLargeResponse(size_kb=3072)
-    def test_list_compute_skus_table_output(self):
-        result = self.cmd('vm list-skus -l eastus2 -otable')
-        lines = result.output.split('\n')
-        # 1st line is header
-        self.assertEqual(lines[0].split(), ['ResourceType', 'Locations', 'Name', 'Zones', 'Capabilities', 'Tier', 'Size', 'Restrictions'])
-        # spot check the first 4 entries
-        fd_found, ud_found, size_found = False, False, False
-        for l in lines[2:]:
-            parts = l.split()
-            if not fd_found and (parts[:5] == ['availabilitySets', 'eastus2', 'Aligned', 'None', 'MaximumPlatformFaultDomainCount=3']):
-                fd_found = True
-            elif not ud_found and (parts[:5] == ['availabilitySets', 'eastus2', 'Classic', 'None', 'MaximumPlatformFaultDomainCount=3']):
-                ud_found = True
-            elif not size_found and parts[:3] == ['virtualMachines', 'eastus2', 'Standard_DS1_v2']:
-                size_found = True
-
-        self.assertTrue(fd_found)
-        self.assertTrue(ud_found)
-        self.assertTrue(size_found)
-
-
 class VMExtensionScenarioTest(ScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_vm_extension')
@@ -1874,42 +1850,6 @@ class VMSSLoadBalancerWithSku(ScenarioTest):
         ])
 
 
-class MSIScenarioTest(ScenarioTest):
-
-    @ResourceGroupPreparer(name_prefix='cli_test_msi_no_scope')
-    def test_msi_no_scope(self, resource_group):
-
-        self.kwargs.update({
-            'vm1': 'vm1',
-            'vmss1': 'vmss1',
-            'vm2': 'vm2',
-            'vmss2': 'vmss2',
-        })
-
-        # create a linux vm with identity but w/o a role assignment (--scope "")
-        self.cmd('vm create -g {rg} -n {vm1} --image debian --assign-identity --admin-username admin123 --admin-password PasswordPassword1!', checks=[
-            self.check('identity.scope', None),
-            self.check('identity.role', None),
-        ])
-
-        # create a vmss with identity but w/o a role assignment (--scope "")
-        self.cmd('vmss create -g {rg} -n {vmss1} --image debian --assign-identity --admin-username admin123 --admin-password PasswordPassword1!', checks=[
-            self.check('vmss.identity.scope', None),
-        ])
-
-        # create a vm w/o identity
-        self.cmd('vm create -g {rg} -n {vm2} --image debian --admin-username admin123 --admin-password PasswordPassword1!')
-        # assign identity but w/o a role assignment
-        self.cmd('vm identity assign -g {rg} -n {vm2}', checks=[
-            self.check('scope', None),
-        ])
-
-        self.cmd('vmss create -g {rg} -n {vmss2} --image debian --admin-username admin123 --admin-password PasswordPassword1!')
-        self.cmd('vmss identity assign -g {rg} -n {vmss2}', checks=[
-            self.check('scope', None),
-        ])
-
-
 class VMLiveScenarioTest(LiveScenarioTest):
 
     @ResourceGroupPreparer(name_prefix='cli_test_vm_create_progress')
@@ -1934,100 +1874,6 @@ class VMLiveScenarioTest(LiveScenarioTest):
 
 @api_version_constraint(ResourceType.MGMT_COMPUTE, min_api='2017-03-30')
 class VMZoneScenarioTest(ScenarioTest):
-
-    @ResourceGroupPreparer(name_prefix='cli_test_vm_zone', location='eastus2')
-    @AllowLargeResponse(size_kb=3072)
-    def test_vm_create_zones(self, resource_group, resource_group_location):
-
-        self.kwargs.update({
-            'zones': '2',
-            'vm': 'vm123',
-            'ip': 'vm123ip'
-        })
-        self.cmd('vm create -g {rg} -n {vm} --admin-username clitester --admin-password PasswordPassword1! --image debian --zone {zones} --public-ip-address {ip}',
-                 checks=self.check('zones', '{zones}'))
-        self.cmd('network public-ip show -g {rg} -n {ip}',
-                 checks=self.check('zones[0]', '{zones}'))
-        # Test VM's specific table output
-        result = self.cmd('vm show -g {rg} -n {vm} -otable')
-        table_output = set(result.output.splitlines()[2].split())
-        self.assertTrue(set([resource_group_location, self.kwargs['zones']]).issubset(table_output))
-
-    @ResourceGroupPreparer(name_prefix='cli_test_vm_zone', location='westus')
-    @AllowLargeResponse(size_kb=3072)
-    def test_vm_error_on_zone_unavailable(self, resource_group, resource_group_location):
-        try:
-            self.cmd('vm create -g {rg} -n vm1 --admin-username clitester --admin-password PasswordPassword1! --image debian --zone 1')
-        except Exception as ex:
-            self.assertTrue('availablity zone is not yet supported' in str(ex))
-
-    @ResourceGroupPreparer(name_prefix='cli_test_vmss_zones', location='eastus2')
-    @AllowLargeResponse(size_kb=3072)
-    def test_vmss_create_single_zone(self, resource_group, resource_group_location):
-
-        self.kwargs.update({
-            'zones': '2',
-            'vmss': 'vmss123'
-        })
-        self.cmd('vmss create -g {rg} -n {vmss} --admin-username clitester --admin-password PasswordPassword1! --image debian --zones {zones}')
-        self.cmd('vmss show -g {rg} -n {vmss}',
-                 checks=self.check('zones[0]', '{zones}'))
-        result = self.cmd('vmss show -g {rg} -n {vmss} -otable')
-        table_output = set(result.output.splitlines()[2].split())
-        self.assertTrue(set([resource_group_location, self.kwargs['vmss'], self.kwargs['zones']]).issubset(table_output))
-        result = self.cmd('vmss list -g {rg} -otable')
-        table_output = set(result.output.splitlines()[2].split())
-        self.assertTrue(set([resource_group_location, self.kwargs['vmss'], self.kwargs['zones']]).issubset(table_output))
-
-        self.cmd('network lb list -g {rg}', checks=[
-            self.check('[0].sku.name', 'Standard')
-        ])
-        self.cmd('network public-ip list -g {rg}', checks=[
-            self.check('[0].sku.name', 'Standard'),
-            self.check('[0].zones', ['2'])
-        ])
-
-    @ResourceGroupPreparer(name_prefix='cli_test_vmss_zones', location='eastus2')
-    @AllowLargeResponse(size_kb=3072)
-    def test_vmss_create_x_zones(self, resource_group, resource_group_location):
-
-        self.kwargs.update({
-            'zones': '1 2 3',
-            'vmss': 'vmss123',
-            'lb': 'vmss123LB',  # default name chosen by the create
-            'rule': 'LBRule',  # default name chosen by the create,
-            'nsg': 'vmss123NSG',  # default name chosen by the create
-            'probe': 'LBProbe'
-        })
-        self.cmd('vmss create -g {rg} -n {vmss} --admin-username clitester --admin-password PasswordPassword1! --image debian --zones {zones}')
-        self.cmd('vmss show -g {rg} -n {vmss}',
-                 checks=self.check('zones', ['1', '2', '3']))
-        result = self.cmd('vmss show -g {rg} -n {vmss} -otable')
-        table_output = set(result.output.splitlines()[2].split())
-        self.assertTrue(set([resource_group_location, self.kwargs['vmss']] + self.kwargs['zones'].split()).issubset(table_output))
-
-        self.cmd('network lb list -g {rg}', checks=[
-            self.check('[0].sku.name', 'Standard')
-        ])
-        self.cmd('network public-ip list -g {rg}', checks=[
-            self.check('[0].sku.name', 'Standard'),
-            self.check('[0].zones', None)
-        ])
-
-        # Now provision a web server
-        self.cmd('network lb probe create -g {rg} --lb-name {lb} -n {probe} --protocol http --port 80 --path /')
-        self.cmd('network lb rule create -g {rg} --lb-name {lb} -n {rule} --protocol tcp --frontend-port 80 --backend-port 80 --probe-name {probe}')
-        self.cmd('network nsg rule create -g {rg} --nsg-name {nsg} -n allowhttp --priority 4096 --destination-port-ranges 80 --protocol Tcp')
-
-        self.cmd('vmss extension set -g {rg} --vmss-name {vmss} -n customScript --publisher Microsoft.Azure.Extensions --settings "{{\\"commandToExecute\\": \\"sudo apt-get install -y nginx\\"}}" --version 2.0')
-        self.cmd('vmss update-instances -g {rg} -n {vmss} --instance-ids "*"')
-
-        # verify the server works
-        result = self.cmd('vmss list-instance-connection-info -g {rg} -n {vmss} -o tsv')
-        time.sleep(15)  # 15 seconds should be enough for nginx started(Skipped under playback mode)
-        import requests
-        r = requests.get('http://' + result.output.split(':')[0])
-        self.assertTrue('Welcome to nginx' in str(r.content))
 
     @ResourceGroupPreparer(name_prefix='cli_test_disk_zones', location='eastus2')
     def test_disk_create_zones(self, resource_group, resource_group_location):
