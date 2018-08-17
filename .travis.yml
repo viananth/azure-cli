@@ -1,6 +1,10 @@
 dist: trusty
 sudo: off
 language: python
+services:
+   - docker
+ git:
+   depth: false
 addons:
   apt:
     packages:
