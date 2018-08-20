@@ -9,7 +9,7 @@ from azure.cli.testsdk import (ScenarioTest, ResourceGroupPreparer, StorageAccou
 from azure.cli.core.profiles import ResourceType
 
 
-@api_version_constraint(ResourceType.MGMT_STORAGE, min_api='2016-12-01')
+#@api_version_constraint(ResourceType.MGMT_STORAGE, min_api='2016-12-01')
 class StorageQueueScenarioTests(ScenarioTest):
     @ResourceGroupPreparer()
     @StorageAccountPreparer(sku='Standard_RAGRS')
@@ -42,37 +42,6 @@ class StorageQueueScenarioTests(ScenarioTest):
             JMESPathCheck('e', 'f'),
             JMESPathCheck('g', 'h')
         ])
-
-        # Queue ACL policy
-        self.cmd('storage queue policy list -q {}'.format(queue), checks=NoneCheck())
-
-        start_time = '2016-01-01T00:00Z'
-        expiry = '2016-05-01T00:00Z'
-        policy = self.create_random_name('policy', 16)
-        self.cmd('storage queue policy create -q {} -n {} --permission raup --start {} --expiry {}'
-                 .format(queue, policy, start_time, expiry))
-
-        acl = self.cmd('storage queue policy list -q {}'.format(queue)).get_output_in_json()
-        self.assertIn(policy, acl)
-        self.assertEqual(1, len(acl))
-
-        returned_permissions = self.cmd('storage queue policy show -q {} -n {}'.format(queue, policy), checks=[
-            JMESPathCheck('start', '2016-01-01T00:00:00+00:00'),
-            JMESPathCheck('expiry', '2016-05-01T00:00:00+00:00'),
-            JMESPathCheckExists('permission')
-        ]).get_output_in_json()['permission']
-
-        self.assertIn('r', returned_permissions)
-        self.assertIn('p', returned_permissions)
-        self.assertIn('a', returned_permissions)
-        self.assertIn('u', returned_permissions)
-
-        self.cmd('storage queue policy update -q {} -n {} --permission ra'.format(queue, policy))
-        self.cmd('storage queue policy show -q {} -n {}'.format(queue, policy),
-                 checks=JMESPathCheck('permission', 'ra'))
-
-        self.cmd('storage queue policy delete -q {} -n {}'.format(queue, policy))
-        self.cmd('storage queue policy list -q {}'.format(queue), checks=NoneCheck())
 
         # Queue message operation
         self.cmd('storage message put -q {} --content "test message"'.format(queue))
