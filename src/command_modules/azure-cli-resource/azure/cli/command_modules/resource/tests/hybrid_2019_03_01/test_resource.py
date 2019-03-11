@@ -550,19 +550,6 @@ class ResourceMoveScenarioTest(ScenarioTest):
                  self.check('name', '{nsg2}')])
 
 
-class FeatureScenarioTest(ScenarioTest):
-
-    @AllowLargeResponse(8192)
-    def test_feature_list(self):
-        self.cmd('feature list', checks=self.check("length([?name=='Microsoft.Xrm/uxdevelopment'])", 1))
-
-        self.cmd('feature list --namespace Microsoft.Network',
-                 checks=self.check("length([?name=='Microsoft.Network/SkipPseudoVipGeneration'])", 1))
-
-        # Once a feature goes GA , it will be removed from the feature list. Once that happens, use other ones to test
-        self.cmd('feature show --namespace Microsoft.Network -n AllowLBPreview')
-
-
 class PolicyScenarioTest(ScenarioTest):
 
     def cmdstring(self, basic, management_group=None, subscription=None):
@@ -582,9 +569,7 @@ class PolicyScenarioTest(ScenarioTest):
 
         self.cmd('policy assignment create --policy {pn} -n {pan} --display-name {padn} -g {rg} --params {params}', checks=[
             self.check('name', '{pan}'),
-            self.check('displayName', '{padn}'),
-            self.check('sku.name', 'A0'),
-            self.check('sku.tier', 'Free')
+            self.check('displayName', '{padn}')
         ])
 
         # create a policy assignment with not scopes and standard sku
@@ -597,11 +582,9 @@ class PolicyScenarioTest(ScenarioTest):
         self.cmd('network vnet create -g {rg} -n {vnet} --subnet-name {subnet}')
         self.kwargs['notscope'] = '/subscriptions/{sub}/resourceGroups/{rg}/providers/Microsoft.Network/virtualNetworks'.format(**self.kwargs)
 
-        self.cmd('policy assignment create --policy {pn} -n {pan} --display-name {padn} -g {rg} --not-scopes {notscope} --params {params} --sku standard', checks=[
+        self.cmd('policy assignment create --policy {pn} -n {pan} --display-name {padn} -g {rg} --not-scopes {notscope} --params {params}', checks=[
             self.check('name', '{pan}'),
             self.check('displayName', '{padn}'),
-            self.check('sku.name', 'A1'),
-            self.check('sku.tier', 'Standard'),
             self.check('notScopes[0]', '{notscope}')
         ])
 
@@ -660,9 +643,7 @@ class PolicyScenarioTest(ScenarioTest):
             'rf': os.path.join(curr_dir, 'sample_policy_rule.json').replace('\\', '\\\\'),
             'pdf': os.path.join(curr_dir, 'sample_policy_param_def.json').replace('\\', '\\\\'),
             'params': os.path.join(curr_dir, 'sample_policy_param.json').replace('\\', '\\\\'),
-            'mode': 'Indexed',
-            'metadata': {u'category': u'test'},
-            'updated_metadata': {u'category': u'test2'},
+            'mode': 'Indexed'
         })
         if (management_group):
             self.kwargs.update({'mg': management_group})
@@ -670,24 +651,22 @@ class PolicyScenarioTest(ScenarioTest):
             self.kwargs.update({'sub': subscription})
 
         # create a policy
-        cmd = self.cmdstring('policy definition create -n {pn} --rules {rf} --params {pdf} --display-name {pdn} --description {desc} --mode {mode} --metadata category=test', management_group, subscription)
+        cmd = self.cmdstring('policy definition create -n {pn} --rules {rf} --params {pdf} --display-name {pdn} --description {desc} --mode {mode}', management_group, subscription)
         self.cmd(cmd, checks=[
             self.check('name', '{pn}'),
             self.check('displayName', '{pdn}'),
             self.check('description', '{desc}'),
-            self.check('mode', '{mode}'),
-            self.check('metadata', '{metadata}')
+            self.check('mode', '{mode}')
         ])
 
         # update it
         self.kwargs['desc'] = self.kwargs['desc'] + '_new'
         self.kwargs['pdn'] = self.kwargs['pdn'] + '_new'
 
-        cmd = self.cmdstring('policy definition update -n {pn} --description {desc} --display-name {pdn} --metadata category=test2', management_group, subscription)
+        cmd = self.cmdstring('policy definition update -n {pn} --description {desc} --display-name {pdn}', management_group, subscription)
         self.cmd(cmd, checks=[
             self.check('description', '{desc}'),
-            self.check('displayName', '{pdn}'),
-            self.check('metadata', '{updated_metadata}')
+            self.check('displayName', '{pdn}')
         ])
 
         # list and show it
@@ -813,97 +792,6 @@ class PolicyScenarioTest(ScenarioTest):
     @AllowLargeResponse(8192)
     def test_resource_policy_default(self, resource_group):
         self.resource_policy_operations(resource_group)
-
-    @ResourceGroupPreparer(name_prefix='cli_test_policy_identity')
-    @AllowLargeResponse(8192)
-    def test_resource_policy_identity(self, resource_group, resource_group_location):
-        self.kwargs.update({
-            'pan': self.create_random_name('azurecli-test-policy-assignment', 40),
-            'bip': '06a78e20-9358-41c9-923c-fb736d382a4d',
-            'sub': self.get_subscription_id(),
-            'location': resource_group_location
-        })
-
-        # create a policy assignment with managed identity using a built in policy definition
-        assignmentIdentity = self.cmd('policy assignment create --policy {bip} -n {pan} -g {rg} --location {location} --assign-identity', checks=[
-            self.check('name', '{pan}'),
-            self.check('location', '{location}'),
-            self.check('identity.type', 'SystemAssigned'),
-            self.exists('identity.principalId'),
-            self.exists('identity.tenantId')
-        ]).get_output_in_json()['identity']
-
-        # ensure managed identity details are retrievable directly through 'policy assignment identity' commands
-        self.cmd('policy assignment identity show -n {pan} -g {rg}', checks=[
-            self.check('type', assignmentIdentity['type']),
-            self.check('principalId', assignmentIdentity['principalId']),
-            self.check('tenantId', assignmentIdentity['tenantId'])
-        ])
-
-        # remove the managed identity and ensure it is removed when retrieving the policy assignment
-        self.cmd('policy assignment identity remove -n {pan} -g {rg}', checks=[
-            self.check('type', 'None')
-        ])
-        self.cmd('policy assignment show -n {pan} -g {rg}', checks=[
-            self.check('name', '{pan}'),
-            self.check('identity.type', 'None')
-        ])
-
-        # add an identity using 'identity assign'
-        self.cmd('policy assignment identity assign -n {pan} -g {rg}', checks=[
-            self.check('type', 'SystemAssigned'),
-            self.exists('principalId'),
-            self.exists('tenantId')
-        ])
-        self.cmd('policy assignment show -n {pan} -g {rg}', checks=[
-            self.check('name', '{pan}'),
-            self.check('identity.type', 'SystemAssigned'),
-            self.exists('identity.principalId'),
-            self.exists('identity.tenantId')
-        ])
-
-        self.cmd('policy assignment identity remove -n {pan} -g {rg}', checks=[
-            self.check('type', 'None')
-        ])
-
-        # create a role assignment for the identity using --assign-identity
-        self.kwargs.update({
-            'idScope': '/subscriptions/{sub}/resourceGroups/{rg}'.format(**self.kwargs),
-            'idRole': 'Reader'
-        })
-        with mock.patch('azure.cli.core.commands.arm._gen_guid', side_effect=self.create_guid):
-            assignmentIdentity = self.cmd('policy assignment create --policy {bip} -n {pan} -g {rg} --location {location} --assign-identity --identity-scope {idScope} --role {idRole}', checks=[
-                self.check('name', '{pan}'),
-                self.check('location', '{location}'),
-                self.check('identity.type', 'SystemAssigned'),
-                self.exists('identity.principalId'),
-                self.exists('identity.tenantId')
-            ]).get_output_in_json()['identity']
-
-        self.kwargs['principalId'] = assignmentIdentity['principalId']
-        self.cmd('role assignment list --resource-group {rg} --role {idRole}', checks=[
-            self.check("length([?principalId == '{principalId}'])", 1),
-            self.check("[?principalId == '{principalId}'].roleDefinitionName | [0]", '{idRole}')
-        ])
-        self.cmd('policy assignment identity remove -n {pan} -g {rg}', checks=[
-            self.check('type', 'None')
-        ])
-
-        # create a role assignment for the identity using 'identity assign'
-        with mock.patch('azure.cli.core.commands.arm._gen_guid', side_effect=self.create_guid):
-            assignmentIdentity = self.cmd('policy assignment identity assign -n {pan} -g {rg} --identity-scope {idScope} --role {idRole}', checks=[
-                self.check('type', 'SystemAssigned'),
-                self.exists('principalId'),
-                self.exists('tenantId')
-            ]).get_output_in_json()
-
-        self.kwargs['principalId'] = assignmentIdentity['principalId']
-        self.cmd('role assignment list --resource-group {rg} --role {idRole}', checks=[
-            self.check("length([?principalId == '{principalId}'])", 1),
-            self.check("[?principalId == '{principalId}'].roleDefinitionName | [0]", '{idRole}')
-        ])
-
-        self.cmd('policy assignment delete -n {pan} -g {rg}')
 
     @ResourceGroupPreparer(name_prefix='cli_test_policy_management_group')
     @AllowLargeResponse()
