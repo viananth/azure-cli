@@ -157,8 +157,7 @@ AZURE_API_PROFILES = {
         ResourceType.MGMT_COMPUTE: SDKProfile('2017-12-01', {
             'resource_skus': '2017-09-01',
             'disks': '2017-03-30',
-            'snapshots': '2017-03-30',
-            'locations/diskoperations': '2017-03-30'
+            'snapshots': '2017-03-30'
         }),
         ResourceType.MGMT_RESOURCE_LINKS: '2018-05-01',
         ResourceType.MGMT_RESOURCE_LOCKS: '2016-09-01',
@@ -169,7 +168,7 @@ AZURE_API_PROFILES = {
         ResourceType.MGMT_KEYVAULT: '2016-10-01',
         ResourceType.MGMT_AUTHORIZATION: SDKProfile('2015-07-01', {
             'classic_administrators': '2015-06-01',
-            'policy_assignments': '2017-06-01-preview',
+            'policy_assignments': '2016-12-01',
             'policy_definitions': '2016-12-01'
         }),
         ResourceType.MGMT_CONTAINERREGISTRY: '2018-09-01',

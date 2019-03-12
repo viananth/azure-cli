@@ -864,50 +864,6 @@ class PolicyScenarioTest(ScenarioTest):
 
 class ManagedAppDefinitionScenarioTest(ScenarioTest):
     @ResourceGroupPreparer()
-    def test_managedappdef(self, resource_group):
-
-        self.kwargs.update({
-            'loc': 'eastus',
-            'adn': self.create_random_name('testappdefname', 20),
-            'addn': self.create_random_name('test_appdef', 20),
-            'ad_desc': 'test_appdef_123',
-            'uri': 'https://testclinew.blob.core.windows.net/files/vivekMAD.zip',
-            'auth': '5e91139a-c94b-462e-a6ff-1ee95e8aac07:8e3af657-a8ff-443c-a75c-2fe8c4bcb635',
-            'lock': 'None'
-        })
-
-        # create a managedapp definition
-        self.kwargs['ad_id'] = self.cmd('managedapp definition create -n {adn} --package-file-uri {uri} --display-name {addn} --description {ad_desc} -l {loc} -a {auth} --lock-level {lock} -g {rg}', checks=[
-            self.check('name', '{adn}'),
-            self.check('displayName', '{addn}'),
-            self.check('description', '{ad_desc}'),
-            self.check('authorizations[0].principalId', '5e91139a-c94b-462e-a6ff-1ee95e8aac07'),
-            self.check('authorizations[0].roleDefinitionId', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635'),
-            self.check('artifacts[0].name', 'ApplicationResourceTemplate'),
-            self.check('artifacts[0].type', 'Template'),
-            self.check('artifacts[1].name', 'CreateUiDefinition'),
-            self.check('artifacts[1].type', 'Custom')
-        ]).get_output_in_json()['id']
-
-        self.cmd('managedapp definition list -g {rg}',
-                 checks=self.check('[0].name', '{adn}'))
-
-        self.cmd('managedapp definition show --ids {ad_id}', checks=[
-            self.check('name', '{adn}'),
-            self.check('displayName', '{addn}'),
-            self.check('description', '{ad_desc}'),
-            self.check('authorizations[0].principalId', '5e91139a-c94b-462e-a6ff-1ee95e8aac07'),
-            self.check('authorizations[0].roleDefinitionId', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635'),
-            self.check('artifacts[0].name', 'ApplicationResourceTemplate'),
-            self.check('artifacts[0].type', 'Template'),
-            self.check('artifacts[1].name', 'CreateUiDefinition'),
-            self.check('artifacts[1].type', 'Custom')
-        ])
-
-        self.cmd('managedapp definition delete -g {rg} -n {adn}')
-        self.cmd('managedapp definition list -g {rg}', checks=self.is_empty())
-
-    @ResourceGroupPreparer()
     def test_managedappdef_inline(self, resource_group):
         curr_dir = os.path.dirname(os.path.realpath(__file__))
 
