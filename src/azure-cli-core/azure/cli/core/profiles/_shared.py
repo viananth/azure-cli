@@ -173,7 +173,7 @@ AZURE_API_PROFILES = {
         }),
         ResourceType.MGMT_CONTAINERREGISTRY: '2018-09-01',
         ResourceType.DATA_KEYVAULT: '2016-10-01',
-        ResourceType.DATA_STORAGE: '2017-04-17',
+        ResourceType.DATA_STORAGE: '2017-11-09',
         ResourceType.DATA_COSMOS_TABLE: '2017-04-17'
     },
     '2017-03-09-profile': {
